@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-dark-bg text-white antialiased overflow-x-hidden max-w-full;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+   position:relative;
+  }
+}
+
+@layer components {
+  /* High-end Glassmorphism */
+  .card-glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl transition-all duration-300;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+  }
+
+  /* The main Glowing Button */
+  .btn-glow {
+    @apply relative overflow-hidden transition-all duration-300 border border-neon-green/50 text-neon-green shadow-glow-green hover:bg-neon-green hover:text-black hover:shadow-[0_0_30px_rgba(57,255,20,0.6)];
+  }
+
+  /* Sidebar Active Link Glow */
+  .nav-active {
+    @apply bg-neon-green/10 text-neon-green border-r-2 border-neon-green shadow-[10px_0_15px_-5px_rgba(57,255,20,0.3)];
+  }
+
+  /* Glowing Input Fields */
+  .input-glow {
+    @apply bg-white/5 border border-white/10 focus:border-neon-green focus:ring-1 focus:ring-neon-green/50 outline-none transition-all rounded-xl;
+  }
+}
+
+/* Custom scrollbar for that sleek look */
+::-webkit-scrollbar {
+  width: 5px;
+}
+.overflow-x-auto::-webkit-scrollbar {
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(57, 255, 20, 0.2);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #39FF14;
+}
