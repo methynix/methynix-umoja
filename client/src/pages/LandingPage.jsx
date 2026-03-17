@@ -11,7 +11,7 @@ const LandingPage = () => {
         <div className="absolute top-0 left-0 w-full h-full opacity-30 bg-[url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')] bg-cover"></div>
         
         <h1 className="text-6xl font-bold mb-4 z-10 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
-          METHYNIX-UMOJA
+          METHYNIX-VICOBA
         </h1>
         <p className="text-xl mb-8 z-10 text-gray-300 max-w-2xl">
           Digitalizing Village Community Banks. Secure your future, grow your savings, and access loans with transparency.

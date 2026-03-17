@@ -27,9 +27,9 @@ const LoginPage = () => {
       <div className="card-glass p-10 w-full max-w-md relative z-10 border-white/10 shadow-2xl">
         <div className="text-center mb-10">
           <h1 className="text-4xl font-black italic bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
-            METHYNIX
+            METHYNIX VICOBA
           </h1>
-          <p className="text-gray-400 mt-2">Welcome back to the Umoja portal</p>
+          <p className="text-gray-400 mt-2">Welcome back to Methynix-Vicoba portal</p>
         </div>
 
         <form onSubmit={handleSubmit(onLogin)} className="space-y-6">

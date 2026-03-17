@@ -34,7 +34,7 @@ const NotFound = () => {
       
       {/* Matrix-like decorative elements */}
       <div className="absolute bottom-10 left-10 opacity-20 font-mono text-xs text-green-500">
-        ERROR_CODE: 0x404_METHYNIX_UMOJA
+        ERROR_CODE: 0x404_METHYNIX_VICOBA
       </div>
     </div>
   );

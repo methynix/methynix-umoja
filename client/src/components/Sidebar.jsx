@@ -21,7 +21,7 @@ const Sidebar = () => {
       {/* DESKTOP SIDEBAR (Visible only on md screens and up) */}
       <aside className="hidden md:flex w-64 bg-black border-r border-white/10 flex-col h-screen sticky top-0">
         <div className="p-8">
-          <h2 className="text-2xl font-black bg-gradient-to-r from-neon-green to-neon-blue bg-clip-text text-transparent italic">METHYNIX</h2>
+          <h2 className="text-2xl font-black bg-gradient-to-r from-neon-green to-neon-blue bg-clip-text text-transparent italic">METHYNIX VICOBA</h2>
         </div>
         <nav className="flex-1 px-4 space-y-2">
           {navItems.map((item) => (

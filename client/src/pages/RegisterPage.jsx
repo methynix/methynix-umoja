@@ -43,7 +43,7 @@ const RegisterPage = () => {
       <div className="card-glass p-8 w-full max-w-lg relative z-10 border-white/5 shadow-2xl">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-black italic bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
-            JIUNGE NA UMOJA
+            JIUNGE NA METHYNIX_VICOBA
           </h1>
           <p className="text-gray-400 mt-2">Anza safari yako ya kifedha kidijitali</p>
         </div>
