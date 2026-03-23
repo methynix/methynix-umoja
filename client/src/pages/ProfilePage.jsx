@@ -157,4 +157,28 @@ const ProfilePage = () => {
   );
 };
 
+const ChangePasswordSection = () => {
+  const { register, handleSubmit } = useForm();
+  
+  const onSubmit = async (data) => {
+    try {
+      await axiosInstance.patch('/auth/update-password', data);
+      toast.success('Password imebadilishwa!');
+    } catch (err) {
+      toast.error('Imeshindikana kubadili password');
+    }
+  };
+
+  return (
+    <section className="card-glass p-6 mt-6">
+      <h3 className="text-neon-blue font-black uppercase text-xs mb-4">Badili Nywila (Change Password)</h3>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <input type="password" {...register('oldPassword')} className="input-glow w-full p-3 bg-white/5" placeholder="Nywila ya sasa" />
+        <input type="password" {...register('newPassword')} className="input-glow w-full p-3 bg-white/5" placeholder="Nywila mpya" />
+        <button className="btn-glow w-full py-3 rounded-xl font-black text-xs uppercase">Hifadhi</button>
+      </form>
+    </section>
+  );
+};
+
 export default ProfilePage;

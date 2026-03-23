@@ -1,88 +1,99 @@
 import React from 'react';
-import { FaPiggyBank, FaHistory, FaShieldAlt } from 'react-icons/fa';
 import { useUserStats } from '../hooks/useUser';
-import { useMyTransactions } from '../hooks/useTransaction';
+import { useMyLedger } from '../hooks/useLedger';
+import { FaPiggyBank,  FaCalendarCheck, FaCircleExclamation } from 'react-icons/fa6';
+import {FaShieldAlt} from "react-icons/fa"
 
 const SharesPage = () => {
   const { data: user } = useUserStats();
-  const { data: transactions, isLoading } = useMyTransactions();
+  const { data: ledger, isLoading } = useMyLedger();
 
-  const contributions = transactions?.filter(t => t.type === 'share' || t.type === 'social_fund') || [];
+  if (isLoading) return (
+    <div className="h-[60vh] flex items-center justify-center">
+      <div className="w-10 h-10 border-4 border-neon-blue border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  );
 
   return (
-    <div className="space-y-8 animate-in slide-up duration-700">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-4xl font-black italic bg-gradient-to-r from-neon-green to-neon-blue bg-clip-text text-transparent uppercase">
-            DAFTARI LA HISA
-          </h1>
-          <p className="text-gray-500 text-sm tracking-widest">Usimamizi wa akiba na michango ya kijamii</p>
+    <div className="space-y-8 animate-in slide-up duration-700 pb-20">
+      
+      {/* --- HEADER --- */}
+      <div>
+        <h2 className="text-3xl md:text-4xl font-black italic text-white uppercase tracking-tighter">Daftari la Hisa</h2>
+        <p className="text-gray-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">Mwaka wa Fedha: {new Date().getFullYear()}</p>
+      </div>
+
+      {/* --- TOTALS SUMMARY --- */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="card-glass p-6 flex items-center gap-6 border-b-4 border-neon-green">
+           <div className="p-4 rounded-2xl bg-neon-green/10 text-neon-green shadow-glow-green">
+              <FaPiggyBank size={24} />
+           </div>
+           <div>
+              <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">Jumla ya Akiba (Hisa)</p>
+              <h3 className="text-3xl font-black text-white">TZS {user?.shares?.toLocaleString()}</h3>
+           </div>
+        </div>
+        <div className="card-glass p-6 flex items-center gap-6 border-b-4 border-purple-500">
+           <div className="p-4 rounded-2xl bg-purple-500/10 text-purple-400">
+              <FaShieldAlt size={24} />
+           </div>
+           <div>
+              <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">Mfuko wa Jamii</p>
+              <h3 className="text-3xl font-black text-white">TZS {user?.socialFund?.toLocaleString()}</h3>
+           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="card-glass p-8 flex items-center gap-6 border-b-4 border-neon-green group">
-          <div className="p-5 rounded-2xl bg-neon-green/10 text-neon-green group-hover:scale-110 transition-transform shadow-glow-green">
-            <FaPiggyBank size={32} />
-          </div>
-          <div>
-            <p className="text-gray-500 text-xs font-bold uppercase mb-1">Jumla ya Hisa</p>
-            <h3 className="text-4xl font-black text-white">TZS {user?.shares?.toLocaleString()}</h3>
-          </div>
-        </div>
+      {/* --- MONTHLY CALENDAR GRID --- */}
+      <div className="space-y-4">
+        <h3 className="text-sm font-black italic text-gray-500 uppercase tracking-widest flex items-center gap-2">
+           <FaCalendarCheck className="text-neon-blue" /> Mchanganuo wa Miezi
+        </h3>
+        
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+          {ledger?.map((item, index) => (
+            <div 
+              key={index} 
+              className={`card-glass p-4 border-t-4 transition-all duration-300 relative overflow-hidden ${
+                item.status === 'Paid' ? 'border-neon-green bg-neon-green/5' : 
+                item.status === 'Not Paid' ? 'border-red-500 bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.1)]' : 
+                'border-white/10 opacity-40'
+              }`}
+            >
+              <div className="flex justify-between items-start mb-2">
+                <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest">{item.month}</span>
+                {item.status === 'Not Paid' && <FaCircleExclamation className="text-red-500 animate-pulse" size={12} />}
+              </div>
 
-        <div className="card-glass p-8 flex items-center gap-6 border-b-4 border-purple-500 group">
-          <div className="p-5 rounded-2xl bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform">
-            <FaShieldAlt size={32} />
-          </div>
-          <div>
-            <p className="text-gray-500 text-xs font-bold uppercase mb-1">Mfuko wa Jamii</p>
-            <h3 className="text-4xl font-black text-white">TZS {user?.socialFund?.toLocaleString()}</h3>
-          </div>
+              <h4 className={`text-base font-black ${item.status === 'Not Paid' ? 'text-red-500' : 'text-white'}`}>
+                {item.status === 'Paid' ? `TZS ${item.amount}` : '0 TZS'}
+              </h4>
+
+              <div className="mt-4 flex items-center justify-between">
+                <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full border ${
+                  item.status === 'Paid' ? 'border-neon-green text-neon-green bg-neon-green/10' : 
+                  item.status === 'Not Paid' ? 'border-red-500 text-red-500 bg-red-500/10' : 
+                  'border-gray-700 text-gray-700'
+                }`}>
+                  {item.status}
+                </span>
+              </div>
+
+              {/* Background Watermark Month */}
+              <span className="absolute -right-2 -bottom-2 text-4xl font-black text-white/5 pointer-events-none uppercase">
+                {item.month}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="card-glass overflow-hidden">
-        <div className="p-6 border-b border-white/5 flex items-center gap-3">
-          <FaHistory className="text-neon-green" />
-          <h2 className="text-xl font-black uppercase italic">Historia ya Michango</h2>
-        </div>
-        <div className="overflow-x-auto shadow-inner">
-          <table className="w-full min-w-[600px] text-left">
-            <thead className="bg-white/5 text-gray-500 text-[10px] uppercase font-black">
-              <tr>
-                <th className="p-5">Tarehe</th>
-                <th className="p-5">Aina</th>
-                <th className="p-5">Kiasi (TZS)</th>
-                <th className="p-5 text-right">Mpokeaji</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {contributions.length > 0 ? (
-                contributions.map((row) => (
-                  <tr key={row._id} className="hover:bg-neon-green/5 transition-colors">
-                    <td className="p-5 font-mono text-xs text-gray-400">
-                      {new Date(row.createdAt).toLocaleDateString('en-GB')}
-                    </td>
-                    <td className="p-5">
-                      <span className={`px-2 py-1 rounded text-[9px] font-bold border ${
-                        row.type === 'share' ? 'border-neon-green/30 text-neon-green bg-neon-green/5' : 'border-purple-500/30 text-purple-400 bg-purple-500/5'
-                      }`}>
-                        {row.type === 'share' ? 'HISA (SHARE)' : 'JAMII (SOCIAL)'}
-                      </span>
-                    </td>
-                    <td className="p-5 text-white font-bold">{row.amount?.toLocaleString()}</td>
-                    <td className="p-5 text-right text-xs text-gray-600 italic">Official Admin</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="4" className="p-20 text-center text-gray-600 font-bold uppercase tracking-[0.2em]">Hakuna michango bado</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+      {/* FOOTER INFO */}
+      <div className="p-6 bg-white/5 rounded-2xl border border-white/10 text-center">
+         <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest">
+           Ripoti hii inazalishwa automatically kulingana na miamala iliyothibitishwa na Secretary.
+         </p>
       </div>
     </div>
   );

@@ -2,20 +2,18 @@ const Joi = require('joi');
 const AppError = require('../utils/AppError');
 
 const registerSchema = Joi.object({
-    name: Joi.string().required().messages({ 'any.required': 'Jina ni lazima' }),
-    phone: Joi.string().length(10).required().messages({ 
-        'string.length': 'Namba ya simu lazima iwe na tarakimu 10' 
+    name: Joi.string().required().messages({ 'any.required': 'Jina lako ni lazima' }),
+    phone: Joi.string().length(10).required(),
+    password: Joi.string().min(6).required(),
+    confirmPassword: Joi.any().equal(Joi.ref('password')).required().messages({
+        'any.only': 'Password hazifanani'
     }),
-    password: Joi.string().min(6).required().messages({
-        'string.min': 'Password lazima iwe na herufi kuanzia 6'
-    }),
+    groupCode: Joi.string().required().messages({ 'any.required': 'Code ya kikundi ni lazima' }),
     
-    confirmPassword: Joi.any().equal(Joi.ref('password'))
-        .required()
-        .messages({ 'any.only': 'Password hazifanani (Passwords do not match)' }),
-
-    role: Joi.string().valid('member', 'secretary', 'admin').default('member'),
-    groupCode: Joi.string().allow('', null)
+    // ONGEZA HII HAPA CHINI
+    groupName: Joi.string().required().messages({ 'any.required': 'Jina la kikundi ni lazima' }),
+    
+    role: Joi.string().valid('member', 'admin', 'secretary', 'superadmin').default('member')
 });
 
 const loginSchema = Joi.object({

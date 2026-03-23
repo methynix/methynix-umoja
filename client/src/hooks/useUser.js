@@ -12,6 +12,7 @@ export const useUserStats = () => {
             const { data } = await axiosInstance.get('/auth/me');
             return data.data.user;
         },
-        enabled: !!token, // Usiite kama hakuna token
+    enabled: !!token, 
+    retry: false,  
     });
 };

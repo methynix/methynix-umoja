@@ -2,7 +2,7 @@ const User = require('../models/User');
 
 class UserRepository {
     async findById(id) {
-        return await User.findById(id);
+        return await User.findById(id).populate('groupId');
     }
 
     async findByPhone(phone) {

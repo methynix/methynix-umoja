@@ -5,24 +5,27 @@ const AppError = require('../utils/AppError');
 exports.recordContribution = async (adminId, data) => {
     const { memberId, type, amount } = data;
     const admin = await userRepository.findById(adminId);
-    const member = await userRepository.findById(memberId);
+    
+    // 1. Update User Stats (Atomic Update)
+    let shareInc = 0;
+    let socialInc = 0;
 
-    if (!member) throw new AppError('Mwanachama hajapatikana', 404);
+    if (type === 'share') shareInc = amount;
+    if (type === 'social_fund') socialInc = amount;
 
-    // Update User Balance atomically
-    if (type === 'share') {
-        await userRepository.updateStats(memberId, amount, 0);
-    } else if (type === 'social_fund') {
-        await userRepository.updateStats(memberId, 0, amount);
-    }
+    const updatedUser = await userRepository.updateStats(memberId, shareInc, socialInc);
+    if (!updatedUser) throw new AppError('Mwanachama hajapatikana', 404);
 
-    // Record the transaction
-    return await transactionRepository.create({
+    // 2. Record the Ledger Transaction
+    return await Transaction.create({
         member: memberId,
+        groupId: admin.groupId,
         groupCode: admin.groupCode,
         type,
         amount,
-        recordedBy: adminId
+        recordedBy: adminId,
+        month: new Date().getMonth() + 1, // Mwezi wa sasa
+        year: new Date().getFullYear()
     });
 };
 

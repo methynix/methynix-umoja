@@ -16,9 +16,11 @@ app.use(express.json());
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 app.use('/api/v1/auth', require('./routes/authRoutes'));
+app.use('/api/v1/users', require('./routes/userRoutes'));
 app.use('/api/v1/loans', require('./routes/loanRoutes'));
 app.use('/api/v1/transactions', require('./routes/transactionRoutes'));
 app.use('/api/v1/stats', require('./routes/statsRoutes'));
+app.use('/api/v1/groups', require('./routes/groupRoutes'));
 
 // app.all('*', (req, res, next) => {
 //     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

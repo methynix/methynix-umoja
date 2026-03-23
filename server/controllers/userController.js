@@ -17,3 +17,15 @@ exports.createMember = asyncHandler(async (req, res, next) => {
         data: { member }
     });
 });
+
+exports.deleteMember = asyncHandler(async (req, res, next) => {
+    const memberId = req.params.id;
+    const adminUser = req.user;
+
+    await userService.removeMember(adminUser, memberId);
+
+    res.status(204).json({
+        status: 'success',
+        data: null
+    });
+});

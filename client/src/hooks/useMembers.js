@@ -12,6 +12,25 @@ export const useMembers = () => {
     });
 };
 
+export const useDeleteMember = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (memberId) => {
+      const { data } = await axiosInstance.delete(`/users/members/${memberId}`);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['groupMembers']);
+      toast.success('Mwanachama amefutwa kwenye mfumo!');
+    },
+    onError: (err) => {
+      const errorMsg = err.response?.data?.message || 'Imeshindwa kufuta mwanachama';
+      toast.error(errorMsg);
+    }
+  });
+};
+
 export const useCreateMember = () => {
     const queryClient = useQueryClient();
     return useMutation({
