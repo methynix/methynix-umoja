@@ -1,13 +1,12 @@
 const express = require('express');
+const router = express.Router();
 const transactionController = require('../controllers/transactionController');
 const { protect, restrictTo } = require('../middlewares/authMiddleware');
-const router = express.Router();
 
 router.use(protect);
 
-router.get('/my-history', transactionController.getMyHistory);
+router.post('/record', restrictTo('admin', 'secretary', 'superadmin'), transactionController.recordContribution);
 router.get('/my-ledger', transactionController.getMyLedger);
-// Ni Secretary na Admin tu wanaoweza kuingiza michango
-router.post('/record', restrictTo('admin', 'secretary'), transactionController.recordContribution);
+router.get('/my-history', transactionController.getMyHistory);
 
 module.exports = router;

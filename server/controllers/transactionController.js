@@ -11,30 +11,31 @@ exports.getMyHistory = asyncHandler(async (req, res, next) => {
     });
 });
 
+
 exports.getMyLedger = asyncHandler(async (req, res) => {
     const currentYear = new Date().getFullYear();
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const currentMonthNum = new Date().getMonth();
 
-    // Vuta miamala ya mwaka huu pekee
     const transactions = await Transaction.find({
         member: req.user._id,
-        year: currentYear,
-        type: { $in: ['share', 'social_fund'] }
+        year: currentYear
     });
 
     const ledger = months.map((m, index) => {
-        const record = transactions.find(t => t.month === (index + 1));
+        const shareRec = transactions.find(t => t.month === (index + 1) && t.type === 'share');
+
+        const socialRec = transactions.find(t => t.month === (index + 1) && t.type === 'social_fund');
+
         return {
             month: m,
-            status: record ? 'Paid' : (index <= currentMonthNum ? 'Not Paid' : 'Pending'),
-            amount: record ? record.amount : 0
+            shareAmount: shareRec ? shareRec.amount : 0,
+            socialAmount: socialRec ? socialRec.amount : 0,
+            status: shareRec ? 'Paid' : (index < new Date().getMonth() ? 'Not Paid' : 'Pending')
         };
     });
 
     res.status(200).json({ status: 'success', data: { ledger } });
 });
-
 exports.recordContribution = asyncHandler(async (req, res, next) => {
     const transaction = await transactionService.recordContribution(req.user._id, req.body);
     

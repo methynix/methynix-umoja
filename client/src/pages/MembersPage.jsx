@@ -53,6 +53,21 @@ const recordMutation = useRecordContribution();
     });
   };
 
+  const onRecord = (data) => {
+  const payload = {
+    memberId: selectedMember._id, // Id ya mwanachama uliyem-click
+    type: data.type,             // 'share' au 'social_fund'
+    amount: Number(data.amount)  // Hakikisha ni namba
+  };
+
+  recordMutation.mutate(payload, {
+    onSuccess: () => {
+      setIsContributionModalOpen(false); // Funga Modal ya pesa
+      reset();
+    }
+  });
+};
+
   const handleDeleteConfirm = () => {
     if (memberToDelete) {
       deleteMutation.mutate(memberToDelete._id, {
@@ -321,15 +336,7 @@ const recordMutation = useRecordContribution();
         </p>
       </div>
 
-      <form onSubmit={handleSubmit((data) => {
-        recordMutation.mutate({
-          memberId: selectedMember._id,
-          type: data.type,
-          amount: Number(data.amount)
-        }, {
-          onSuccess: () => setIsContributionModalOpen(false)
-        });
-      })} className="space-y-6">
+      <form onSubmit={handleSubmit(onRecord)} className="space-y-6">
         
         {/* Aina ya Mchango */}
         <div>
