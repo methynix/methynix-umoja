@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { FaUserShield, FaGlobe, FaSignOutAlt, FaIdCard, FaUsers, FaPhone } from 'react-icons/fa';
+import { FaUserShield, FaGlobe, FaSignOutAlt, FaIdCard, FaUsers, FaPhone, FaLock, FaCheckCircle } from 'react-icons/fa';
 import { useUserStats } from '../hooks/useUser';
 import { useAuth } from '../hooks/useAuth';
 import ConfirmModal from '../components/ConfirmModal';
+import axiosInstance from '../services/axiosInstance';
 import toast from 'react-hot-toast';
 
 const ProfilePage = () => {
@@ -14,170 +16,108 @@ const ProfilePage = () => {
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
-    toast.success(lng === 'sw' ? 'Lugha imebadilishwa kuwa Kiswahili' : 'Language changed to English');
+    toast.success(lng === 'sw' ? 'Lugha imebadilishwa!' : 'Language updated!');
   };
 
-  const handleLogout = () => {
-    logout();
-    setIsLogoutModalOpen(false);
-  };
+  if (isLoading) return <div className="h-[60vh] flex items-center justify-center"><div className="w-10 h-10 border-4 border-neon-green border-t-transparent rounded-full animate-spin"></div></div>;
 
-  if (isLoading) {
-    return (
-      <div className="h-[60vh] flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-neon-green border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  // Generate initials for the avatar
-  const getInitials = (name) => {
-    if (!name) return 'U';
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-  };
+  const getInitials = (name) => name ? name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : 'MS';
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* Header / Hero Section */}
+    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-up duration-700 pb-20">
+      
+      {/* 1. HERO SECTION */}
       <div className="relative overflow-hidden card-glass p-8 border-b-4 border-neon-blue">
         <div className="absolute top-0 right-0 w-32 h-32 bg-neon-blue/10 blur-3xl rounded-full"></div>
-        <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
-          {/* Avatar Area */}
-          <div className="w-28 h-28 rounded-full bg-gradient-to-tr from-neon-green to-neon-blue p-1 shadow-glow-blue">
-            <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-4xl font-black italic">
-              {getInitials(user?.name)}
-            </div>
+        <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-neon-green to-neon-blue p-1 shadow-glow-blue">
+            <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-3xl font-black italic">{getInitials(user?.name)}</div>
           </div>
-          
-          <div className="flex-1">
-            <h1 className="text-4xl font-black uppercase italic tracking-tight text-white mb-2">
-              {user?.name}
-            </h1>
-            <div className="flex flex-wrap justify-center md:justify-start gap-3">
-              <span className="px-3 py-1 bg-neon-green/10 border border-neon-green/30 rounded text-neon-green text-xs font-bold uppercase tracking-widest">
-                {user?.role}
-              </span>
-              <span className="px-3 py-1 bg-white/5 border border-white/10 rounded text-gray-400 text-xs font-bold uppercase tracking-widest">
-                ID: {user?._id?.substring(user._id.length - 6).toUpperCase()}
-              </span>
+          <div className="text-center md:text-left">
+            <h1 className="text-4xl font-black uppercase italic text-white mb-2">{user?.name}</h1>
+            <div className="flex gap-2 justify-center md:justify-start">
+              <span className="px-3 py-1 bg-neon-green/10 border border-neon-green/30 rounded text-neon-green text-[10px] font-black uppercase">{user?.role}</span>
+              <span className="px-3 py-1 bg-white/5 border border-white/10 rounded text-gray-400 text-[10px] font-black uppercase tracking-widest">ID: {user?._id?.slice(-6).toUpperCase()}</span>
             </div>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Profile Details */}
+        
+        {/* 2. PERSONAL INFO */}
         <div className="space-y-6">
-          <h3 className="text-xl font-black italic uppercase text-neon-green tracking-widest flex items-center gap-2">
-            <FaIdCard className="text-sm" /> Taarifa Binafsi
+          <h3 className="text-xl font-black italic uppercase text-neon-green tracking-widest flex items-center gap-3">
+             <FaIdCard className="text-sm" /> Taarifa Binafsi
           </h3>
-          
           <div className="card-glass p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-white/5 pb-3">
-              <div className="flex items-center gap-3 text-gray-400">
-                <FaPhone className="text-xs" />
-                <span className="text-sm uppercase font-bold tracking-tighter">Namba ya Simu</span>
-              </div>
-              <span className="text-white font-mono">{user?.phone}</span>
-            </div>
-
-            <div className="flex items-center justify-between border-b border-white/5 pb-3">
-              <div className="flex items-center gap-3 text-gray-400">
-                <FaUsers className="text-xs" />
-                <span className="text-sm uppercase font-bold tracking-tighter">Kikundi (Group Code)</span>
-              </div>
-              <span className="text-neon-blue font-bold">{user?.groupCode || 'Huna Kikundi'}</span>
-            </div>
-
-            <div className="flex items-center justify-between pt-2">
-              <div className="flex items-center gap-3 text-gray-400">
-                <FaUserShield className="text-xs" />
-                <span className="text-sm uppercase font-bold tracking-tighter">Hali ya Akaunti</span>
-              </div>
-              <span className="text-neon-green text-xs font-black uppercase tracking-widest">Verified Member</span>
-            </div>
+             <InfoRow icon={<FaPhone />} label="Namba ya Simu" value={user?.phone} />
+             <InfoRow icon={<FaUsers />} label="Kikundi" value={user?.groupId?.name || 'Loading...'} />
+             <div className="flex items-center justify-between pt-2">
+                <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2"><FaUserShield /> Status</span>
+                <span className="text-neon-green text-[10px] font-black uppercase flex items-center gap-1"><FaCheckCircle /> Verified</span>
+             </div>
           </div>
         </div>
 
-        {/* Settings Section */}
+        {/* 3. SETTINGS & PASSWORD */}
         <div className="space-y-6">
-          <h3 className="text-xl font-black italic uppercase text-neon-blue tracking-widest flex items-center gap-2">
-            <FaGlobe className="text-sm" /> Mipangilio (Settings)
+          <h3 className="text-xl font-black italic uppercase text-neon-blue tracking-widest flex items-center gap-3">
+             <FaGlobe className="text-sm" /> Mipangilio
           </h3>
           
-          <div className="card-glass p-6 space-y-6">
+          <div className="card-glass p-6 space-y-8">
             {/* Language Switcher */}
             <div>
-              <p className="text-gray-500 text-xs font-black uppercase mb-4 tracking-widest">Lugha ya Mfumo (Language)</p>
+              <p className="text-[10px] font-black text-gray-500 uppercase mb-4 tracking-widest text-center md:text-left">Lugha ya Mfumo</p>
               <div className="flex gap-4">
-                <button 
-                  onClick={() => changeLanguage('sw')}
-                  className={`flex-1 py-4 rounded-xl font-black uppercase text-xs tracking-widest transition-all duration-300 border ${
-                    i18n.language === 'sw' 
-                    ? 'border-neon-green bg-neon-green/10 text-neon-green shadow-glow-green' 
-                    : 'border-white/10 text-gray-500 hover:bg-white/5'
-                  }`}
-                >
-                  Kiswahili
-                </button>
-                <button 
-                  onClick={() => changeLanguage('en')}
-                  className={`flex-1 py-4 rounded-xl font-black uppercase text-xs tracking-widest transition-all duration-300 border ${
-                    i18n.language === 'en' 
-                    ? 'border-neon-blue bg-neon-blue/10 text-neon-blue shadow-glow-blue' 
-                    : 'border-white/10 text-gray-500 hover:bg-white/5'
-                  }`}
-                >
-                  English
-                </button>
+                <button onClick={() => changeLanguage('sw')} className={`flex-1 py-3 rounded-xl font-black uppercase text-[10px] border transition-all ${i18n.language === 'sw' ? 'border-neon-green bg-neon-green/10 text-neon-green shadow-glow-green' : 'border-white/10 text-gray-500'}`}>Kiswahili</button>
+                <button onClick={() => changeLanguage('en')} className={`flex-1 py-3 rounded-xl font-black uppercase text-[10px] border transition-all ${i18n.language === 'en' ? 'border-neon-blue bg-neon-blue/10 text-neon-blue shadow-glow-blue' : 'border-white/10 text-gray-500'}`}>English</button>
               </div>
             </div>
 
-            {/* Logout Action */}
-            <div className="pt-4 border-t border-white/5">
-              <button 
-                onClick={() => setIsLogoutModalOpen(true)}
-                className="w-full flex items-center justify-center gap-3 py-4 rounded-xl border border-red-500/30 text-red-500 font-black uppercase text-xs tracking-[0.2em] hover:bg-red-500/10 transition-all"
-              >
-                <FaSignOutAlt /> Ondoka Kwenye Mfumo
-              </button>
+            {/* Password Section Integrated */}
+            <div className="pt-6 border-t border-white/5">
+               <ChangePasswordSection />
             </div>
+
+            {/* Logout */}
+            <button onClick={() => setIsLogoutModalOpen(true)} className="w-full py-4 border border-red-500/20 text-red-500 font-black uppercase text-[10px] tracking-[0.2em] rounded-xl hover:bg-red-500/10 transition-all">Ondoka Kwenye Mfumo</button>
           </div>
         </div>
       </div>
 
-      <ConfirmModal 
-        isOpen={isLogoutModalOpen}
-        title="Ondoka (Logout)"
-        message="Je, una uhakika unataka kuondoka kwenye mfumo wa Methynix-Umoja?"
-        onConfirm={handleLogout}
-        onCancel={() => setIsLogoutModalOpen(false)}
-      />
+      <ConfirmModal isOpen={isLogoutModalOpen} title="Ondoka?" message="Je, una uhakika unataka kutoka?" onConfirm={logout} onCancel={() => setIsLogoutModalOpen(false)} />
     </div>
   );
 };
 
+const InfoRow = ({ icon, label, value }) => (
+  <div className="flex justify-between items-center border-b border-white/5 pb-3">
+    <div className="flex items-center gap-3 text-gray-500 text-xs font-bold uppercase tracking-tighter">{icon} {label}</div>
+    <span className="text-white font-bold text-sm uppercase">{value}</span>
+  </div>
+);
+
 const ChangePasswordSection = () => {
-  const { register, handleSubmit } = useForm();
-  
+  const { register, handleSubmit, reset } = useForm();
   const onSubmit = async (data) => {
     try {
       await axiosInstance.patch('/auth/update-password', data);
-      toast.success('Password imebadilishwa!');
+      toast.success('Nywila imebadilishwa!');
+      reset();
     } catch (err) {
-      toast.error('Imeshindikana kubadili password');
+      toast.error(err.response?.data?.message || 'Kosa limetokea');
     }
   };
 
   return (
-    <section className="card-glass p-6 mt-6">
-      <h3 className="text-neon-blue font-black uppercase text-xs mb-4">Badili Nywila (Change Password)</h3>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <input type="password" {...register('oldPassword')} className="input-glow w-full p-3 bg-white/5" placeholder="Nywila ya sasa" />
-        <input type="password" {...register('newPassword')} className="input-glow w-full p-3 bg-white/5" placeholder="Nywila mpya" />
-        <button className="btn-glow w-full py-3 rounded-xl font-black text-xs uppercase">Hifadhi</button>
-      </form>
-    </section>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+      <div className="flex items-center gap-2 mb-2"><FaLock className="text-neon-blue text-xs" /><span className="text-[10px] font-black text-gray-500 uppercase">Usalama wa Nywila</span></div>
+      <input type="password" {...register('oldPassword', { required: true })} className="input-glow w-full p-3 bg-white/5 text-sm" placeholder="Nywila ya sasa" />
+      <input type="password" {...register('newPassword', { required: true, minLength: 6 })} className="input-glow w-full p-3 bg-white/5 text-sm" placeholder="Nywila mpya" />
+      <button type="submit" className="w-full btn-glow py-3 rounded-xl font-black text-[10px] uppercase border-neon-blue text-neon-blue">Hifadhi Nywila</button>
+    </form>
   );
 };
 

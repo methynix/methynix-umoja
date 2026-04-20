@@ -43,6 +43,17 @@ const recordMutation = useRecordContribution();
     m.phone.includes(searchTerm)
   );
 
+  const months = [
+  { val: 1, name: "Januari" }, { val: 2, name: "Februari" },
+  { val: 3, name: "Machi" }, { val: 4, name: "Aprili" },
+  { val: 5, name: "Mei" }, { val: 6, name: "Juni" },
+  { val: 7, name: "Julai" }, { val: 8, name: "Agosti" },
+  { val: 9, name: "Septemba" }, { val: 10, name: "Oktoba" },
+  { val: 11, name: "Novemba" }, { val: 12, name: "Desemba" }
+];
+
+const currentMonth = new Date().getMonth() + 1;
+
   // 6. HANDLERS
   const onRegister = (data) => {
     createMutation.mutate(data, {
@@ -337,7 +348,26 @@ const recordMutation = useRecordContribution();
       </div>
 
       <form onSubmit={handleSubmit(onRecord)} className="space-y-6">
-        
+        <div>
+    <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest block mb-2">Mwezi wa Malipo</label>
+    <select 
+      {...register("month", { required: true })}
+      defaultValue={currentMonth}
+      className="w-full bg-white/5 border border-white/10 p-3.5 rounded-xl focus:border-neon-blue outline-none text-white text-sm"
+    >
+      {months.map(m => (
+        <option 
+          key={m.val} 
+          value={m.val} 
+          disabled={m.val > currentMonth} // <--- Hapa ndipo tunazuia mwezi wa mbeleni
+          className="bg-black text-white"
+        >
+          {m.name} {m.val > currentMonth ? '(Bado)' : ''}
+        </option>
+      ))}
+    </select>
+  </div>
+
         {/* Aina ya Mchango */}
         <div>
           <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 block">Aina ya Mchango</label>

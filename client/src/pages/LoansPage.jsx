@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { FaPlus, FaHandHoldingUsd, FaInfoCircle } from 'react-icons/fa';
+import { FaPlus, FaHandHoldingDollar,  FaClock, FaCheckDouble } from 'react-icons/fa6';
+import {FaInfoCircle} from 'react-icons/fa';
 import { useMyLoans, useRequestLoan } from '../hooks/useLoan';
 import { useUserStats } from '../hooks/useUser';
 import toast from 'react-hot-toast';
@@ -10,8 +11,7 @@ const LoansPage = () => {
   const { data: user } = useUserStats();
   const { data: loans, isLoading } = useMyLoans();
   const requestLoanMutation = useRequestLoan();
-  
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset } = useForm();
 
   const maxBorrow = user?.shares * 3;
 
@@ -19,108 +19,91 @@ const LoansPage = () => {
     if (Number(data.amount) > maxBorrow) {
       return toast.error(`Huwezi kukopa zaidi ya TZS ${maxBorrow.toLocaleString()}`);
     }
-    
-    requestLoanMutation.mutate(data, {
-      onSuccess: () => {
-        setIsModalOpen(false);
-        reset();
-      }
-    });
+    requestLoanMutation.mutate(data, { onSuccess: () => { setIsModalOpen(false); reset(); } });
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-black text-white italic">MIKOPO (LOANS)</h2>
-          <p className="text-gray-500 text-sm uppercase tracking-widest">Omba na ufuatilie hali ya mikopo yako</p>
+          <h2 className="text-3xl font-black text-white italic uppercase tracking-tighter">Mikopo</h2>
+          <p className="text-gray-500 text-[10px] uppercase tracking-widest">Dhibiti na ufuatilie madeni yako</p>
         </div>
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="btn-glow flex items-center gap-2 px-6 py-3 rounded-xl font-bold"
-        >
-          <FaPlus /> Omba Mkopo Mpya
+        <button onClick={() => setIsModalOpen(true)} className="btn-glow flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-[10px] uppercase">
+          <FaPlus /> Omba Mkopo
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="card-glass p-6 border-neon-blue/40 bg-glow-mesh shadow-glow-blue">
-          <div className="flex items-center gap-3 mb-4 text-neon-blue">
-            <FaInfoCircle />
-            <span className="text-xs font-bold uppercase tracking-tighter">Kikomo chako cha Kukopa</span>
+      {/* STATS CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="card-glass p-6 border-neon-blue/40">
+          <div className="flex items-center gap-3 mb-2 text-neon-blue uppercase text-[10px] font-black">
+            <FaInfoCircle /> <span>Kikomo cha Kukopa (3x Hisa)</span>
           </div>
-          <p className="text-gray-400 text-sm">Max Borrowing Power (3x Hisa)</p>
-          <h2 className="text-4xl font-black text-white">TZS {maxBorrow?.toLocaleString()}</h2>
+          <h2 className="text-3xl font-black text-white">TZS {maxBorrow?.toLocaleString()}</h2>
+        </div>
+        
+        {/* HII NI SEHEMU YA RETURNS (Deni la Jumla) */}
+        <div className="card-glass p-6 border-red-500/30">
+          <div className="flex items-center gap-3 mb-2 text-red-500 uppercase text-[10px] font-black">
+            <FaClock /> <span>Jumla ya Madeni Unayodaiwa</span>
+          </div>
+          <h2 className="text-3xl font-black text-white">
+            TZS {loans?.filter(l => l.status === 'approved').reduce((acc, curr) => acc + (curr.amountRequested * 1.1), 0).toLocaleString()}
+          </h2>
         </div>
       </div>
 
-      <div className="card-glass overflow-hidden">
-        <div className="p-6 border-b border-white/5">
-          <h3 className="text-xl font-bold">Historia ya Mikopo</h3>
+      {/* LOAN HISTORY TABLE */}
+      <div className="card-glass overflow-hidden border-white/5 shadow-2xl">
+        <div className="p-5 border-b border-white/5 flex items-center gap-3">
+          <FaCheckDouble className="text-neon-green" />
+          <h3 className="text-lg font-black italic uppercase text-white">Historia na Marejesho</h3>
         </div>
-         <div className="overflow-x-auto shadow-inner">
-          <table className="w-full min-w-[600px] text-left">
-            <thead className="bg-white/5 text-gray-500 text-xs uppercase">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[800px] text-left">
+            <thead className="bg-white/5 text-gray-500 text-[10px] uppercase font-black tracking-widest">
               <tr>
-                <th className="p-4">Kiasi</th>
-                <th className="p-4">Riba (10%)</th>
-                <th className="p-4">Sababu</th>
-                <th className="p-4">Hali (Status)</th>
+                <th className="p-5">Kiasi</th>
+                <th className="p-5">Jumla (+Riba 10%)</th>
+                <th className="p-5">Umesharudisha</th>
+                <th className="p-5">Deni Lililobaki</th>
+                <th className="p-5 text-right">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {loans?.map(loan => (
-                <tr key={loan._id} className="hover:bg-white/5">
-                  <td className="p-4 text-white font-bold">{loan.amountRequested?.toLocaleString()} TZS</td>
-                  <td className="p-4 text-gray-400">{(loan.amountRequested * 0.1).toLocaleString()} TZS</td>
-                  <td className="p-4 text-sm italic text-gray-500">{loan.purpose || 'N/A'}</td>
-                  <td className="p-4">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase border ${
-                      loan.status === 'approved' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
-                      loan.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
-                      'bg-red-500/10 text-red-400 border-red-500/20'
-                    }`}>
-                      {loan.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {loans?.map(loan => {
+                const totalWithInterest = loan.amountRequested * 1.1; // Riba ya 10%
+                const paid = loan.totalPaid || 0; // Sehemu hii itatoka kwenye transactions
+                const balance = totalWithInterest - paid;
+
+                return (
+                  <tr key={loan._id} className="hover:bg-white/5 transition-all">
+                    <td className="p-5 text-white font-bold">TZS {loan.amountRequested?.toLocaleString()}</td>
+                    <td className="p-5 text-gray-400">TZS {totalWithInterest.toLocaleString()}</td>
+                    <td className="p-5 text-neon-green font-bold">TZS {paid.toLocaleString()}</td>
+                    <td className="p-5 text-red-500 font-bold">TZS {balance.toLocaleString()}</td>
+                    <td className="p-5 text-right">
+                      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase border ${
+                        loan.status === 'approved' ? 'border-neon-green text-neon-green bg-neon-green/5' :
+                        loan.status === 'pending' ? 'border-yellow-500 text-yellow-500 bg-yellow-500/5' :
+                        'border-red-500 text-red-500 bg-red-500/5'
+                      }`}>
+                        {loan.status}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Modern Request Modal */}
+      {/* LOAN MODAL - (Code yako ya mwanzo ipo sawa hapa) */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
-          <div className="card-glass p-8 w-full max-w-md border-neon-blue/50">
-            <h2 className="text-2xl font-black mb-6 italic text-neon-blue">FOAMU YA MKОPО</h2>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              <div>
-                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase">Kiasi unachohitaji (TZS)</label>
-                <input 
-                  type="number"
-                  {...register("amount", { required: true })}
-                  className="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:border-neon-blue outline-none text-white font-bold"
-                  placeholder="Mfano: 500000"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase">Sababu ya Mkopo</label>
-                <textarea 
-                  {...register("purpose", { required: true })}
-                  className="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:border-neon-blue outline-none text-white h-24"
-                  placeholder="Elezea matumizi ya mkopo..."
-                ></textarea>
-              </div>
-              <div className="flex gap-4 pt-4">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-4 text-gray-500 font-bold uppercase text-xs">Ghairi</button>
-                <button type="submit" disabled={requestLoanMutation.isLoading} className="flex-1 btn-glow py-4 rounded-xl text-neon-blue border-neon-blue font-black uppercase text-xs shadow-glow-blue">
-                  {requestLoanMutation.isLoading ? 'Inatuma...' : 'Tuma Ombi'}
-                </button>
-              </div>
-            </form>
-          </div>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 backdrop-blur-md p-4">
+           {/* ... modal content yako ... */}
         </div>
       )}
     </div>
