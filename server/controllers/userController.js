@@ -1,0 +1,31 @@
+const userService = require('../services/userService');
+const asyncHandler = require('../utils/asyncHandler');
+
+exports.getAllMembers = asyncHandler(async (req, res, next) => {
+    const members = await userService.getGroupMembers(req.user);
+    res.status(200).json({
+        status: 'success',
+        results: members.length,
+        data: { members }
+    });
+});
+
+exports.createMember = asyncHandler(async (req, res, next) => {
+    const member = await userService.registerMemberManually(req.user, req.body);
+    res.status(201).json({
+        status: 'success',
+        data: { member }
+    });
+});
+
+exports.deleteMember = asyncHandler(async (req, res, next) => {
+    const memberId = req.params.id;
+    const adminUser = req.user;
+
+    await userService.removeMember(adminUser, memberId);
+
+    res.status(204).json({
+        status: 'success',
+        data: null
+    });
+});

@@ -1,0 +1,443 @@
+import React, { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import {
+  FaUserPlus, FaTrash, FaPiggyBank,
+  FaUser, FaPhone, FaXmark, FaLayerGroup
+} from 'react-icons/fa6';
+import { FaSearch, FaShieldAlt } from 'react-icons/fa';
+import { useMembers, useCreateMember, useDeleteMember } from '../hooks/useMembers';
+import { useUserStats } from '../hooks/useUser';
+import { useRecordContribution } from '../hooks/useTransaction';
+import ConfirmModal from '../components/ConfirmModal';
+import Spinner from '../components/Spinner';
+
+const MembersPage = () => {
+  const navigate = useNavigate();
+  const { data: currentUser } = useUserStats();
+  const { data: members, isLoading } = useMembers();
+  const createMutation = useCreateMember();
+  const deleteMutation = useDeleteMember();
+  const recordMutation = useRecordContribution();
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState(null);
+  const [isContributionModalOpen, setIsContributionModalOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
+
+  // SEPARATE forms so one modal never carries the other's data,
+  // and so reopening "Sajili" never shows the previous member's details.
+  const registerForm = useForm({
+    defaultValues: { name: '', phone: '', role: 'member', shares: 0, socialFund: 0 },
+  });
+  const recordForm = useForm({ defaultValues: { month: '', type: 'share', amount: '' } });
+
+  const isSuper = currentUser?.role === 'superadmin';
+  const isAdmin = currentUser?.role === 'admin';
+  const isSecretary = currentUser?.role === 'secretary';
+  const canManage = isAdmin || isSecretary;
+
+  const months = [
+    { val: 1, name: 'Januari' }, { val: 2, name: 'Februari' },
+    { val: 3, name: 'Machi' }, { val: 4, name: 'Aprili' },
+    { val: 5, name: 'Mei' }, { val: 6, name: 'Juni' },
+    { val: 7, name: 'Julai' }, { val: 8, name: 'Agosti' },
+    { val: 9, name: 'Septemba' }, { val: 10, name: 'Oktoba' },
+    { val: 11, name: 'Novemba' }, { val: 12, name: 'Desemba' },
+  ];
+  const currentMonth = new Date().getMonth() + 1;
+
+  // Always start the register modal from a clean slate.
+  const openRegisterModal = () => {
+    registerForm.reset({ name: '', phone: '', role: 'member', shares: 0, socialFund: 0 });
+    setIsModalOpen(true);
+  };
+  const closeRegisterModal = () => {
+    setIsModalOpen(false);
+    registerForm.reset({ name: '', phone: '', role: 'member', shares: 0, socialFund: 0 });
+  };
+
+  const openContributionModal = (member) => {
+    setSelectedMember(member);
+    recordForm.reset({ month: currentMonth, type: 'share', amount: '' });
+    setIsContributionModalOpen(true);
+  };
+  const closeContributionModal = () => {
+    setIsContributionModalOpen(false);
+    setSelectedMember(null);
+    recordForm.reset({ month: currentMonth, type: 'share', amount: '' });
+  };
+
+  const filteredMembers = members?.filter(
+    (m) =>
+      m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      m.phone.includes(searchTerm)
+  );
+
+  const onRegister = (data) => {
+    createMutation.mutate(
+      {
+        ...data,
+        shares: Number(data.shares) || 0,
+        socialFund: Number(data.socialFund) || 0,
+      },
+      { onSuccess: () => closeRegisterModal() }
+    );
+  };
+
+  const onRecord = (data) => {
+    recordMutation.mutate(
+      {
+        memberId: selectedMember._id,
+        type: data.type,
+        amount: Number(data.amount),
+        month: Number(data.month),
+        year: new Date().getFullYear(),
+      },
+      { onSuccess: () => closeContributionModal() }
+    );
+  };
+
+  const handleDeleteConfirm = () => {
+    if (memberToDelete) {
+      deleteMutation.mutate(memberToDelete._id, {
+        onSuccess: () => {
+          setIsDeleteModalOpen(false);
+          setMemberToDelete(null);
+        },
+      });
+    }
+  };
+
+  // Superadmin manages the platform by GROUP, not by a single giant user list.
+  if (isSuper) {
+    return (
+      <div className="h-[60vh] flex flex-col items-center justify-center text-center gap-4 px-6">
+        <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-100 text-vicoba-forest">
+          <FaLayerGroup size={32} />
+        </div>
+        <h2 className="text-xl font-extrabold text-vicoba-dark">Tumia Ukurasa wa Vikundi</h2>
+        <p className="text-sm text-gray-500 max-w-sm font-medium">
+          Kama Msimamizi Mkuu, unaona wanachama kwa kuingia kikundi kimoja baada ya kingine,
+          badala ya orodha kubwa ya watumiaji wote (kwa ufanisi wa mfumo).
+        </p>
+        <button
+          onClick={() => navigate('/dashboard/manage-groups')}
+          className="bg-vicoba-forest hover:bg-emerald-900 text-white px-6 py-3 rounded-xl font-bold text-sm transition-colors shadow-md shadow-vicoba-forest/15"
+        >
+          Nenda kwenye Vikundi
+        </button>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="h-[60vh] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-vicoba-forest border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  const inputClass =
+    'w-full bg-gray-50 border border-gray-300 p-3 pl-11 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark text-sm font-semibold transition-all';
+  const labelClass = 'block text-xs font-bold text-vicoba-dark mb-1.5';
+
+  return (
+    <div className="space-y-6 pb-20">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-vicoba-dark tracking-tight">Wanachama</h2>
+          <p className="text-gray-500 text-sm font-medium mt-1">
+            Kikundi: {currentUser?.groupId?.name || 'Inapakia...'}
+          </p>
+        </div>
+
+        {canManage && (
+          <button
+            onClick={openRegisterModal}
+            className="bg-vicoba-forest hover:bg-emerald-900 text-white flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm w-full md:w-auto justify-center transition-colors shadow-md shadow-vicoba-forest/10 active:scale-[0.99]"
+          >
+            <FaUserPlus /> Sajili Mwanachama
+          </button>
+        )}
+      </div>
+
+      <div className="bg-white p-1 flex items-center gap-3 rounded-xl border border-gray-200 shadow-sm shadow-vicoba-forest/5">
+        <div className="pl-4 text-gray-400"><FaSearch size={14} /></div>
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Tafuta kwa jina au namba ya simu..."
+          className="bg-transparent border-none outline-none text-vicoba-dark w-full py-3 text-sm placeholder-gray-400 font-medium"
+        />
+      </div>
+
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-md shadow-vicoba-forest/5 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[700px] text-left">
+            <thead className="bg-gray-50 text-xs font-bold text-gray-500 border-b border-gray-100">
+              <tr>
+                <th className="p-4">Mwanachama</th>
+                <th className="p-4">Wajibu (Role)</th>
+                <th className="p-4">Hisa (Shares)</th>
+                <th className="p-4">Mfuko wa Jamii</th>
+                <th className="p-4 text-right">Vitendo</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {filteredMembers?.length > 0 ? (
+                filteredMembers.map((member) => (
+                  <tr key={member._id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-sm font-bold text-vicoba-forest shadow-sm">
+                          {member.name.substring(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-vicoba-dark font-bold text-sm">{member.name}</p>
+                          <p className="text-gray-400 text-xs font-medium">{member.phone}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+                        member.role === 'admin' ? 'border-amber-200 text-vicoba-gold bg-amber-50' :
+                        member.role === 'secretary' ? 'border-indigo-100 text-indigo-600 bg-indigo-50' :
+                        'border-gray-200 text-gray-500 bg-gray-50'
+                      }`}>
+                        {member.role === 'admin' ? 'Mwenyekiti' : member.role === 'secretary' ? 'Katibu' : 'Mwanachama'}
+                      </span>
+                    </td>
+                    <td className="p-4 text-vicoba-forest font-bold text-sm">TZS {member.shares?.toLocaleString()}</td>
+                    <td className="p-4 text-vicoba-gold font-bold text-sm">TZS {member.socialFund?.toLocaleString()}</td>
+                    <td className="p-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        {canManage && (
+                          <button
+                            onClick={() => openContributionModal(member)}
+                            className="p-2 rounded-xl border border-gray-200 text-vicoba-forest hover:bg-emerald-50 hover:border-emerald-200 transition-colors bg-white shadow-sm"
+                            title="Jaza Michango"
+                          >
+                            <FaPiggyBank size={14} />
+                          </button>
+                        )}
+                        {isAdmin && member._id !== currentUser._id && (
+                          <button
+                            onClick={() => { setMemberToDelete(member); setIsDeleteModalOpen(true); }}
+                            className="p-2 rounded-xl border border-gray-200 text-vicoba-earth hover:bg-red-50 hover:border-red-200 transition-colors bg-white shadow-sm"
+                            title="Futa Mwanachama"
+                          >
+                            <FaTrash size={14} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="p-16 text-center text-gray-400 font-medium text-sm">
+                    Hakuna mwanachama aliyepatikana
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* REGISTER MODAL */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-vicoba-dark/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-white p-6 md:p-8 w-full max-w-lg rounded-2xl border border-gray-100 shadow-xl my-auto relative">
+            <button onClick={closeRegisterModal} className="absolute top-4 right-4 text-gray-400 hover:text-vicoba-dark transition-colors">
+              <FaXmark size={20} />
+            </button>
+
+            <div className="mb-6">
+              <h3 className="text-xl font-bold text-vicoba-dark tracking-tight">Sajili Mwanachama Mpya</h3>
+              <p className="text-xs font-semibold text-vicoba-forest bg-vicoba-forest/5 px-2 py-1 rounded mt-1.5 w-fit">
+                Kikundi: {currentUser?.groupId?.name}
+              </p>
+            </div>
+
+            <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
+              <div>
+                <label className={labelClass}>Jina Kamili</label>
+                <div className="relative flex items-center">
+                  <FaUser className="absolute left-4 text-gray-400 text-sm" />
+                  <input
+                    {...registerForm.register('name', { required: 'Jina ni lazima' })}
+                    className={inputClass}
+                    placeholder="Mfano: Asha Juma"
+                  />
+                </div>
+                {registerForm.formState.errors.name && (
+                  <span className="text-xs text-vicoba-earth font-bold block mt-1">
+                    {registerForm.formState.errors.name.message}
+                  </span>
+                )}
+              </div>
+
+              <div>
+                <label className={labelClass}>Namba ya Simu</label>
+                <div className="relative flex items-center">
+                  <FaPhone className="absolute left-4 text-gray-400 text-sm" />
+                  <input
+                    {...registerForm.register('phone', { required: 'Namba ya simu ni lazima' })}
+                    className={inputClass}
+                    placeholder="07xxxxxxxx"
+                  />
+                </div>
+                {registerForm.formState.errors.phone && (
+                  <span className="text-xs text-vicoba-earth font-bold block mt-1">
+                    {registerForm.formState.errors.phone.message}
+                  </span>
+                )}
+              </div>
+
+              {isAdmin && (
+                <div>
+                  <label className={labelClass}>Wajibu Kwenye Kikundi (User Role)</label>
+                  <select
+                    {...registerForm.register('role')}
+                    className="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark text-sm font-semibold cursor-pointer transition-all"
+                  >
+                    <option value="member">Mwanachama (Member)</option>
+                    <option value="secretary">Katibu (Secretary)</option>
+                    <option value="admin">Mwenyekiti (Admin)</option>
+                  </select>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>Hisa za Kwanza (TZS)</label>
+                  <div className="relative flex items-center">
+                    <FaPiggyBank className="absolute left-4 text-gray-400 text-sm" />
+                    <input type="number" min="0" {...registerForm.register('shares')} className={inputClass} placeholder="0" />
+                  </div>
+                </div>
+                <div>
+                  <label className={labelClass}>Mfuko wa Jamii (TZS)</label>
+                  <div className="relative flex items-center">
+                    <FaShieldAlt className="absolute left-4 text-gray-400 text-sm" />
+                    <input type="number" min="0" {...registerForm.register('socialFund')} className={inputClass} placeholder="0" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-center">
+                <p className="text-xs text-vicoba-gold font-bold">
+                  Nywila ya kwanza itakuwa jina la mwanachama kwa herufi ndogo (bila nafasi).
+                </p>
+              </div>
+
+              <div className="flex gap-4 pt-2">
+                <button type="button" onClick={closeRegisterModal} className="flex-1 py-3 text-gray-500 font-bold text-sm transition-colors hover:text-vicoba-dark">
+                  Ghairi
+                </button>
+                <button
+                  type="submit"
+                  disabled={createMutation.isPending}
+                  className="flex-1 bg-vicoba-forest hover:bg-emerald-900 text-white py-3 rounded-xl font-bold text-sm transition-colors shadow-md shadow-vicoba-forest/15 disabled:opacity-60 active:scale-[0.99] flex items-center justify-center gap-2"
+                >
+                  {createMutation.isPending ? <><Spinner /> Inasajili...</> : 'Kamilisha Usajili'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* CONTRIBUTION MODAL */}
+      {isContributionModalOpen && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-vicoba-dark/60 backdrop-blur-sm p-4">
+          <div className="bg-white p-6 md:p-8 w-full max-w-md rounded-2xl border border-gray-100 shadow-xl relative">
+            <button onClick={closeContributionModal} className="absolute top-4 right-4 text-gray-400 hover:text-vicoba-dark transition-colors">
+              <FaXmark size={20} />
+            </button>
+
+            <div className="mb-6">
+              <h3 className="text-xl font-bold text-vicoba-dark tracking-tight">Rekodi Malipo ya Mchango</h3>
+              <p className="text-xs font-semibold text-vicoba-forest bg-vicoba-forest/5 px-2 py-1 rounded mt-1.5 w-fit">
+                Mwanachama: {selectedMember?.name}
+              </p>
+            </div>
+
+            <form onSubmit={recordForm.handleSubmit(onRecord)} className="space-y-5">
+              <div>
+                <label className={labelClass}>Mwezi wa Malipo</label>
+                <select
+                  {...recordForm.register('month', { required: true })}
+                  className="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark text-sm font-semibold cursor-pointer transition-all"
+                >
+                  {months.map((m) => (
+                    <option key={m.val} value={m.val} disabled={m.val > currentMonth}>
+                      {m.name} {m.val > currentMonth ? '(Muda bado)' : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className={labelClass}>Aina ya Mchango</label>
+                <select
+                  {...recordForm.register('type', { required: true })}
+                  className="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark text-sm font-semibold cursor-pointer transition-all"
+                >
+                  <option value="share">Hisa (Shares)</option>
+                  <option value="social_fund">Mfuko wa Jamii</option>
+                </select>
+              </div>
+
+              <div>
+                <label className={labelClass}>Kiasi cha Fedha (TZS)</label>
+                <input
+                  type="number"
+                  min="1"
+                  {...recordForm.register('amount', { required: 'Ingiza kiasi', min: { value: 1, message: 'Kiasi lazima kiwe zaidi ya 0' } })}
+                  placeholder="Mfano: 50000"
+                  className="w-full bg-gray-50 border border-gray-300 p-3.5 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark text-base font-bold transition-all"
+                />
+                {recordForm.formState.errors.amount && (
+                  <span className="text-xs text-vicoba-earth font-bold block mt-1">
+                    {recordForm.formState.errors.amount.message}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex gap-4 pt-2">
+                <button type="button" onClick={closeContributionModal} className="flex-1 py-3 text-gray-500 font-bold text-sm transition-colors hover:text-vicoba-dark">
+                  Ghairi
+                </button>
+                <button
+                  type="submit"
+                  disabled={recordMutation.isPending}
+                  className="flex-1 bg-vicoba-forest hover:bg-emerald-900 text-white py-3 rounded-xl font-bold text-sm transition-colors shadow-md shadow-vicoba-forest/15 disabled:opacity-60 active:scale-[0.99] flex items-center justify-center gap-2"
+                >
+                  {recordMutation.isPending ? <><Spinner /> Inahifadhi...</> : 'Hifadhi Mchango'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        title="Ondoa Mwanachama?"
+        message={`Je, una uhakika unataka kumfuta ${memberToDelete?.name} kutoka kwenye mfumo? Kitendo hiki hakina marekebisho.`}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setIsDeleteModalOpen(false)}
+        isLoading={deleteMutation.isPending}
+      />
+    </div>
+  );
+};
+
+export default MembersPage;

@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-color: #FDFBF5;
+    --text-color: #2E302E;
+  }
+
+  .dark {
+    --bg-color: #0A0F0A;
+    --text-color: #FDFBF5;
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    @apply transition-colors duration-300 min-h-screen;
+  }
+}
+
+@layer components {
+  .card-standard {
+    @apply rounded-2xl border transition-all duration-300;
+  }
+
+  .light .card-standard {
+    @apply bg-white border-gray-200 shadow-sm;
+  }
+
+  .dark .card-standard {
+    @apply bg-vicoba-dark/40 border-white/5 shadow-2xl;
+  }
+
+  .input-glow {
+    @apply w-full p-4 rounded-xl outline-none transition-all border;
+  }
+
+  .light .input-glow {
+    @apply bg-gray-50 border-gray-200 focus:border-vicoba-forest;
+  }
+
+  .dark .input-glow {
+    @apply bg-white/5 border-white/10 focus:border-vicoba-gold text-white;
+  }
+}
