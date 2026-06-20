@@ -1,4 +1,4 @@
-const PROVIDER = (process.env.SMS_PROVIDER || 'africastalking').toLowerCase();
+const PROVIDER = (process.env.SMS_PROVIDER || 'nextsms').toLowerCase();
 
 const normalizePhone = (phone) => {
     let p = String(phone || '').replace(/\s+/g, '');
@@ -6,6 +6,27 @@ const normalizePhone = (phone) => {
     if (p.startsWith('0')) return '+255' + p.slice(1);
     if (p.startsWith('255')) return '+' + p;
     return p;
+};
+
+const sendViaNextSMS = async (to, message) => {
+    const auth =
+        process.env.NEXTSMS_AUTH ||
+        Buffer.from(`${process.env.NEXTSMS_USERNAME}:${process.env.NEXTSMS_PASSWORD}`).toString('base64');
+
+    const res = await fetch('https://messaging-service.co.tz/api/sms/v1/text/single', {
+        method: 'POST',
+        headers: {
+            Authorization: `Basic ${auth}`,
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+        },
+        body: JSON.stringify({
+            from: process.env.NEXTSMS_SENDER_ID || 'N-SMS',
+            to: to.map((p) => p.replace('+', '')),
+            text: message,
+        }),
+    });
+    return res.json();
 };
 
 const sendViaAfricasTalking = async (to, message) => {
@@ -45,7 +66,6 @@ const sendViaBeem = async (to, message) => {
         headers: {
             Authorization: `Basic ${token}`,
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
         },
         body: JSON.stringify({
             source_addr: process.env.BEEM_SENDER_ID || 'INFO',
@@ -60,24 +80,29 @@ const sendViaBeem = async (to, message) => {
     return res.json();
 };
 
+const isConfigured = () => {
+    if (PROVIDER === 'nextsms')
+        return Boolean(process.env.NEXTSMS_AUTH || (process.env.NEXTSMS_USERNAME && process.env.NEXTSMS_PASSWORD));
+    if (PROVIDER === 'beem') return Boolean(process.env.BEEM_API_KEY && process.env.BEEM_SECRET_KEY);
+    return Boolean(process.env.AT_USERNAME && process.env.AT_API_KEY);
+};
+
+const dispatch = (to, message) => {
+    if (PROVIDER === 'nextsms') return sendViaNextSMS(to, message);
+    if (PROVIDER === 'beem') return sendViaBeem(to, message);
+    return sendViaAfricasTalking(to, message);
+};
+
 const sendSMS = async (phone, message) => {
     const recipients = (Array.isArray(phone) ? phone : [phone]).map(normalizePhone);
 
-    const configured =
-        PROVIDER === 'beem'
-            ? process.env.BEEM_API_KEY && process.env.BEEM_SECRET_KEY
-            : process.env.AT_USERNAME && process.env.AT_API_KEY;
-
-    if (!configured) {
+    if (!isConfigured()) {
         console.log(`[SMS:${PROVIDER}] (not configured) -> ${recipients.join(', ')}: ${message}`);
         return { skipped: true };
     }
 
     try {
-        const result =
-            PROVIDER === 'beem'
-                ? await sendViaBeem(recipients, message)
-                : await sendViaAfricasTalking(recipients, message);
+        const result = await dispatch(recipients, message);
         console.log(`[SMS:${PROVIDER}] sent -> ${recipients.join(', ')}`);
         return result;
     } catch (err) {
