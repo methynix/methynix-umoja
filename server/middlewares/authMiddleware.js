@@ -39,10 +39,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
     }
 });
 
-// NOTE: superadmin is NO LONGER auto-allowed everywhere.
-// Each route lists exactly which roles may access it. This lets us
-// keep the superadmin OUT of member-level actions (loans, etc.)
-// while still being a platform manager.
+
 exports.restrictTo = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {

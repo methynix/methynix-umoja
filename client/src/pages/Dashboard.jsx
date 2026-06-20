@@ -52,25 +52,25 @@ const Dashboard = () => {
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
   <h1 className="text-2xl md:text-3xl font-extrabold text-vicoba-forest tracking-tight">
-    {isSuper ? 'Mfumo wa METHYNIX' : (user?.groupId?.name || 'Kikundi Chako')}
+    {isSuper ? t('dashboard') : (user?.groupId?.name || t('your_group'))}
   </h1>
-  <p className="text-vicoba-dark font-medium text-sm mt-1">
+  <p className="text-vicoba-dark dark:text-gray-100 font-medium text-sm mt-1">
     {t('welcome_back')}, <span className="text-vicoba-forest font-bold">{user?.name}</span> 
   </p>
 </div>
 
 <div className="bg-vicoba-forest/10 px-4 py-2 rounded-full border border-vicoba-forest/20 flex items-center gap-2 self-start shadow-sm">
    <FaUserShield className="text-vicoba-forest text-sm" />
-   <span className="text-xs font-bold text-vicoba-forest uppercase tracking-wide">{user?.role}</span>
+   <span className="text-xs font-bold text-vicoba-forest uppercase tracking-wide">{t('role_' + (user?.role || 'member'))}</span>
 </div>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {isSuper ? (
           <>
-            <StatTile label="Wanachama Wote" value={globalStats?.totalUsers?.toLocaleString()} icon={<FaUsers />} color="border-vicoba-forest" />
-            <StatTile label="Vikundi Hai" value={globalStats?.groupCount?.toLocaleString()} icon={<FaLayerGroup />} color="border-vicoba-gold" />
-            <StatTile label="Mtaji wa Mfumo" value={`TZS ${globalStats?.totalCash?.toLocaleString()}`} icon={<FaMoneyBillWave />} color="border-vicoba-leaf" />
+            <StatTile label={t('all_users')} value={globalStats?.totalUsers?.toLocaleString()} icon={<FaUsers />} color="border-vicoba-forest" />
+            <StatTile label={t('active_groups')} value={globalStats?.groupCount?.toLocaleString()} icon={<FaLayerGroup />} color="border-vicoba-gold" />
+            <StatTile label={t('system_capital')} value={`TZS ${globalStats?.totalCash?.toLocaleString()}`} icon={<FaMoneyBillWave />} color="border-vicoba-leaf" />
           </>
         ) : (
           <>
@@ -89,9 +89,9 @@ const Dashboard = () => {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {isSuper ? (
               <>
-                <ConsoleBtn label="Vikundi" icon={<FaLayerGroup />} onClick={() => navigate('/dashboard/manage-groups')} />
-                <ConsoleBtn label="Wasimamizi" icon={<FaUserShield />} onClick={() => navigate('/dashboard/manage-groups')} />
-                <ConsoleBtn label="Matengenezo" icon={<FaFileInvoiceDollar />} onClick={() => navigate('/dashboard/manage-groups')} />
+                <ConsoleBtn label={t('groups')} icon={<FaLayerGroup />} onClick={() => navigate('/dashboard/manage-groups')} />
+                <ConsoleBtn label={t('system_admins')} icon={<FaUserShield />} onClick={() => navigate('/dashboard/manage-groups')} />
+                <ConsoleBtn label={t('maintenance')} icon={<FaFileInvoiceDollar />} onClick={() => navigate('/dashboard/manage-groups')} />
               </>
             ) : (
               <>
@@ -108,30 +108,30 @@ const Dashboard = () => {
         </div>
       )}
 
-<div className="bg-white rounded-2xl border border-gray-100 shadow-md shadow-vicoba-forest/5 overflow-hidden">
-  <div className="p-4 md:p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-    <h3 className="text-base font-bold text-vicoba-dark flex items-center gap-2">
+<div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-md shadow-vicoba-forest/5 overflow-hidden">
+  <div className="p-4 md:p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50">
+    <h3 className="text-base font-bold text-vicoba-dark dark:text-gray-100 flex items-center gap-2">
       <FaClockRotateLeft className="text-vicoba-gold" /> {t('recent_transactions')}
     </h3>
     <button onClick={() => navigate('/dashboard/shares')} className="text-xs font-bold text-vicoba-forest hover:text-vicoba-gold transition-colors underline">
-      Angalia Zote
+      {t('view_all')}
     </button>
   </div>
   <div className="overflow-x-auto">
     <table className="w-full min-w-[500px] text-left">
-      <thead className="bg-gray-50 text-xs font-bold text-gray-500 border-b border-gray-100">
+      <thead className="bg-gray-50 dark:bg-gray-950 text-xs font-bold text-gray-500 dark:text-gray-300 border-b border-gray-100 dark:border-gray-800">
         <tr>
-          <th className="p-4">Aina ya Miamala</th>
-          <th className="p-4">Tarehe</th>
-          <th className="p-4">Kiasi</th>
-          <th className="p-4 text-right">Hali</th>
+          <th className="p-4">{t('transaction_type')}</th>
+          <th className="p-4">{t('date')}</th>
+          <th className="p-4">{t('amount')}</th>
+          <th className="p-4 text-right">{t('status')}</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-gray-100">
         {transactions?.slice(0, 5).map(tx => (
           <tr key={tx._id} className="hover:bg-gray-50/80 transition-all">
-            <td className="p-4 text-sm font-semibold text-vicoba-dark capitalize">{tx.type.replace('_', ' ').toLowerCase()}</td>
-            <td className="p-4 text-xs text-gray-500 font-medium">{new Date(tx.createdAt).toLocaleDateString('en-GB')}</td>
+            <td className="p-4 text-sm font-semibold text-vicoba-dark dark:text-gray-100 capitalize">{tx.type.replace('_', ' ').toLowerCase()}</td>
+            <td className="p-4 text-xs text-gray-500 dark:text-gray-300 font-medium">{new Date(tx.createdAt).toLocaleDateString('en-GB')}</td>
             <td className="p-4 text-sm font-bold text-vicoba-forest">TZS {tx.amount?.toLocaleString()}</td>
             <td className="p-4 text-right">
               <span className="px-2.5 py-1 bg-emerald-50 text-vicoba-forest rounded-full text-xs font-bold border border-emerald-100 inline-block">
@@ -149,21 +149,21 @@ const Dashboard = () => {
 };
 
 const StatTile = ({ label, value, icon, color }) => (
-  <div className={`bg-white border-l-4 ${color} p-5 rounded-2xl border border-gray-100 shadow-md shadow-vicoba-forest/5 flex items-center gap-4 transition-all hover:shadow-lg`}>
-    <div className="p-4 bg-gray-50 text-vicoba-forest rounded-xl text-2xl border border-gray-100">
+  <div className={`bg-white dark:bg-gray-900 border-l-4 ${color} p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-md shadow-vicoba-forest/5 flex items-center gap-4 transition-all hover:shadow-lg`}>
+    <div className="p-4 bg-gray-50 dark:bg-gray-950 text-vicoba-forest rounded-xl text-2xl border border-gray-100 dark:border-gray-800">
       {icon}
     </div>
     <div>
-      <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">{label}</p>
-      <h3 className="text-xl md:text-2xl font-extrabold text-vicoba-dark tracking-tight">{value}</h3>
+      <p className="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wide mb-1">{label}</p>
+      <h3 className="text-xl md:text-2xl font-extrabold text-vicoba-dark dark:text-gray-100 tracking-tight">{value}</h3>
     </div>
   </div>
 );
 
 const ConsoleBtn = ({ label, icon, onClick}) => (
-  <button onClick={onClick} className={`p-4 md:p-5 bg-white border border-gray-200 rounded-xl transition-all text-left group shadow-sm hover:shadow-md hover:border-vicoba-forest active:scale-[0.98]`}>
+  <button onClick={onClick} className={`p-4 md:p-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl transition-all text-left group shadow-sm hover:shadow-md hover:border-vicoba-forest active:scale-[0.98]`}>
     <div className="text-vicoba-gold group-hover:text-vicoba-forest transition-colors mb-3 text-2xl">{icon}</div>
-    <p className="text-vicoba-dark font-bold text-sm tracking-tight">{label}</p>
+    <p className="text-vicoba-dark dark:text-gray-100 font-bold text-sm tracking-tight">{label}</p>
   </button>
 );
 

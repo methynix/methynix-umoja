@@ -1,28 +1,41 @@
 const cron = require('node-cron');
 const User = require('../models/User');
-const Contribution = require('../models/Contribution');
+const Transaction = require('../models/Transaction');
+const { sendSMS } = require('../services/smsService');
 
-const sendSMS = async (phone, message) => {
-    console.log(`Sending SMS to ${phone}: ${message}`);
-    // Hapa utaweka API yako ya SMS (Beem, Twilio, etc.)
-};
-
-const reminderJob = async () => {
+const runReminder = async (label) => {
     const now = new Date();
     const month = now.getMonth() + 1;
     const year = now.getFullYear();
 
-    const members = await User.find({ role: 'member' });
+    const members = await User.find({ role: { $in: ['member', 'secretary', 'admin'] } }).select('name phone');
 
-    for (let member of members) {
-        const paid = await Contribution.findOne({ member: member._id, month, year });
-        
-        if (!paid) {
-            const msg = `Habari ${member.name}, Methynix-Umoja inakukumbusha kulipa michango ya mwezi huu ili kuepuka faini.`;
+    for (const member of members) {
+        const paid = await Transaction.findOne({
+            member: member._id,
+            type: 'share',
+            month,
+            year,
+        });
+
+        if (!paid && member.phone) {
+            const msg = `Habari ${member.name}, Methynix Umoja inakukumbusha kulipa hisa za mwezi huu ili kuepuka faini. (${label})`;
             await sendSMS(member.phone, msg);
         }
     }
 };
 
-cron.schedule('0 9 15 * *', reminderJob);
-cron.schedule('0 9 28-31 * *', reminderJob);
+const lastDayOfMonth = (d) => new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+
+cron.schedule('0 9 * * *', async () => {
+    const today = new Date();
+    const day = today.getDate();
+
+    if (day === 15) {
+        await runReminder('Katikati ya mwezi');
+    } else if (day === lastDayOfMonth(today)) {
+        await runReminder('Mwisho wa mwezi');
+    }
+}, { timezone: 'Africa/Dar_es_Salaam' });
+
+module.exports = { runReminder };

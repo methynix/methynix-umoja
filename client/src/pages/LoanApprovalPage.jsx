@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '../services/axiosInstance';
 import toast from 'react-hot-toast';
@@ -7,6 +8,7 @@ import ConfirmModal from '../components/ConfirmModal';
 
 const LoanApprovalsPage = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState(null); // Itashika { id, status, name, amount }
@@ -62,26 +64,26 @@ const LoanApprovalsPage = () => {
 
   return (
     <div className="space-y-6 pb-20">
-      <h2 className="text-2xl md:text-3xl font-extrabold text-vicoba-dark tracking-tight flex items-center gap-2.5">
-        <FaStamp className="text-vicoba-gold" /> Maombi ya Mikopo
+      <h2 className="text-2xl md:text-3xl font-extrabold text-vicoba-dark dark:text-gray-100 tracking-tight flex items-center gap-2.5">
+        <FaStamp className="text-vicoba-gold" /> {t('approvals_title')}
       </h2>
 
       <div className="grid grid-cols-1 gap-4">
         {loans?.filter(l => l.status === 'pending').map((loan) => (
           <div 
             key={loan._id} 
-            className="bg-white p-5 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 rounded-2xl border border-gray-100 border-l-4 border-l-amber-400 shadow-md shadow-vicoba-forest/5 transition-all"
+            className="bg-white dark:bg-gray-900 p-5 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 rounded-2xl border border-gray-100 dark:border-gray-800 border-l-4 border-l-amber-400 shadow-md shadow-vicoba-forest/5 transition-all"
           >
             <div className="space-y-1.5 w-full">
               <div className="flex items-baseline gap-1.5">
-                <span className="text-xs font-semibold text-gray-400">Kiasi:</span>
-                <p className="text-xl font-extrabold text-vicoba-dark">TZS {loan.amountRequested?.toLocaleString()}</p>
+                <span className="text-xs font-semibold text-gray-400 dark:text-gray-500">Kiasi:</span>
+                <p className="text-xl font-extrabold text-vicoba-dark dark:text-gray-100">TZS {loan.amountRequested?.toLocaleString()}</p>
               </div>
-              <p className="text-sm font-bold text-gray-600">
-                Mwombaji: <span className="text-vicoba-forest">{loan.member?.name}</span>
+              <p className="text-sm font-bold text-gray-600 dark:text-gray-300">
+                {t('applicant')}: <span className="text-vicoba-forest">{loan.member?.name}</span>
               </p>
-              <p className="text-xs text-gray-400 bg-gray-50 px-3 py-2 rounded-xl border border-gray-100 inline-block w-full md:w-auto font-medium">
-                Lengo: <span className="italic text-gray-500">"{loan.purpose}"</span>
+              <p className="text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-950 px-3 py-2 rounded-xl border border-gray-100 dark:border-gray-800 inline-block w-full md:w-auto font-medium">
+                Lengo: <span className="italic text-gray-500 dark:text-gray-300">"{loan.purpose}"</span>
               </p>
             </div>
             
@@ -90,28 +92,28 @@ const LoanApprovalsPage = () => {
                 onClick={() => initiateAction(loan, 'rejected')}
                 className="flex-1 md:flex-none px-6 py-2.5 rounded-xl border border-red-100 text-vicoba-earth bg-red-50 hover:bg-vicoba-earth hover:text-white font-bold text-sm transition-colors"
               >
-                Kataa
+                {t('reject')}
               </button>
               <button 
                 onClick={() => initiateAction(loan, 'approved')}
                 className="flex-1 md:flex-none px-6 py-2.5 rounded-xl bg-vicoba-forest text-white hover:bg-emerald-900 font-bold text-sm shadow-sm shadow-vicoba-forest/10 transition-colors"
               >
-                Idhinisha
+                {t('approve')}
               </button>
             </div>
           </div>
         ))}
 
         {loans?.filter(l => l.status === 'pending').length === 0 && (
-          <div className="p-16 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200 text-gray-400 font-medium text-sm">
-            Hakuna maombi mapya yanayosubiri idhini kwa sasa.
+          <div className="p-16 text-center bg-gray-50 dark:bg-gray-950 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 font-medium text-sm">
+            {t('no_pending')}
           </div>
         )}
       </div>
 
       <ConfirmModal 
         isOpen={isConfirmOpen}
-        title={pendingAction?.status === 'approved' ? 'Idhinisha Mkopo?' : 'Kataa Mkopo?'}
+        title={pendingAction?.status === 'approved' ? t('approve_loan_title') : t('reject_loan_title')}
         message={
           pendingAction?.status === 'approved' 
           ? `Je, una uhakika unataka kuidhinisha mkopo wa TZS ${pendingAction?.amount?.toLocaleString()} kwa ${pendingAction?.name}?`

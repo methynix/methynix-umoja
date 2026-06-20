@@ -73,7 +73,7 @@ const router = createBrowserRouter([
 
 const App = () => {
   return (
-    <div className="app-container bg-black min-h-screen">
+    <div className="app-container bg-vicoba-cream dark:bg-gray-950 min-h-screen transition-colors">
       <AuthProvider>
         <RouterProvider router={router} />
       </AuthProvider>

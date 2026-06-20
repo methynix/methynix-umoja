@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -14,6 +15,7 @@ import Spinner from '../components/Spinner';
 
 const MembersPage = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { data: currentUser } = useUserStats();
   const { data: members, isLoading } = useMembers();
   const createMutation = useCreateMember();
@@ -118,16 +120,15 @@ const MembersPage = () => {
         <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-100 text-vicoba-forest">
           <FaLayerGroup size={32} />
         </div>
-        <h2 className="text-xl font-extrabold text-vicoba-dark">Tumia Ukurasa wa Vikundi</h2>
-        <p className="text-sm text-gray-500 max-w-sm font-medium">
-          Kama Msimamizi Mkuu, unaona wanachama kwa kuingia kikundi kimoja baada ya kingine,
-          badala ya orodha kubwa ya watumiaji wote (kwa ufanisi wa mfumo).
+        <h2 className="text-xl font-extrabold text-vicoba-dark dark:text-gray-100">{t('use_groups_title')}</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-300 max-w-sm font-medium">
+          {t('use_groups_desc')}
         </p>
         <button
           onClick={() => navigate('/dashboard/manage-groups')}
           className="bg-vicoba-forest hover:bg-emerald-900 text-white px-6 py-3 rounded-xl font-bold text-sm transition-colors shadow-md shadow-vicoba-forest/15"
         >
-          Nenda kwenye Vikundi
+          {t('go_to_groups')}
         </button>
       </div>
     );
@@ -142,16 +143,16 @@ const MembersPage = () => {
   }
 
   const inputClass =
-    'w-full bg-gray-50 border border-gray-300 p-3 pl-11 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark text-sm font-semibold transition-all';
-  const labelClass = 'block text-xs font-bold text-vicoba-dark mb-1.5';
+    'w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 p-3 pl-11 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark dark:text-gray-100 text-sm font-semibold transition-all';
+  const labelClass = 'block text-xs font-bold text-vicoba-dark dark:text-gray-100 mb-1.5';
 
   return (
     <div className="space-y-6 pb-20">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-2xl md:text-3xl font-extrabold text-vicoba-dark tracking-tight">Wanachama</h2>
-          <p className="text-gray-500 text-sm font-medium mt-1">
-            Kikundi: {currentUser?.groupId?.name || 'Inapakia...'}
+          <h2 className="text-2xl md:text-3xl font-extrabold text-vicoba-dark dark:text-gray-100 tracking-tight">{t('members_title')}</h2>
+          <p className="text-gray-500 dark:text-gray-300 text-sm font-medium mt-1">
+            {t('group_name')}: {currentUser?.groupId?.name || '...'}
           </p>
         </div>
 
@@ -160,32 +161,32 @@ const MembersPage = () => {
             onClick={openRegisterModal}
             className="bg-vicoba-forest hover:bg-emerald-900 text-white flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm w-full md:w-auto justify-center transition-colors shadow-md shadow-vicoba-forest/10 active:scale-[0.99]"
           >
-            <FaUserPlus /> Sajili Mwanachama
+            <FaUserPlus /> {t('register_member')}
           </button>
         )}
       </div>
 
-      <div className="bg-white p-1 flex items-center gap-3 rounded-xl border border-gray-200 shadow-sm shadow-vicoba-forest/5">
-        <div className="pl-4 text-gray-400"><FaSearch size={14} /></div>
+      <div className="bg-white dark:bg-gray-900 p-1 flex items-center gap-3 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm shadow-vicoba-forest/5">
+        <div className="pl-4 text-gray-400 dark:text-gray-500"><FaSearch size={14} /></div>
         <input
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Tafuta kwa jina au namba ya simu..."
-          className="bg-transparent border-none outline-none text-vicoba-dark w-full py-3 text-sm placeholder-gray-400 font-medium"
+          placeholder={t('search_member')}
+          className="bg-transparent border-none outline-none text-vicoba-dark dark:text-gray-100 w-full py-3 text-sm placeholder-gray-400 font-medium"
         />
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-md shadow-vicoba-forest/5 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-md shadow-vicoba-forest/5 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px] text-left">
-            <thead className="bg-gray-50 text-xs font-bold text-gray-500 border-b border-gray-100">
+            <thead className="bg-gray-50 dark:bg-gray-950 text-xs font-bold text-gray-500 dark:text-gray-300 border-b border-gray-100 dark:border-gray-800">
               <tr>
-                <th className="p-4">Mwanachama</th>
-                <th className="p-4">Wajibu (Role)</th>
-                <th className="p-4">Hisa (Shares)</th>
-                <th className="p-4">Mfuko wa Jamii</th>
-                <th className="p-4 text-right">Vitendo</th>
+                <th className="p-4">{t('members_title')}</th>
+                <th className="p-4">{t('user_role')}</th>
+                <th className="p-4">{t('shares')}</th>
+                <th className="p-4">{t('social_fund')}</th>
+                <th className="p-4 text-right">{t('status')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -198,8 +199,8 @@ const MembersPage = () => {
                           {member.name.substring(0, 2).toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-vicoba-dark font-bold text-sm">{member.name}</p>
-                          <p className="text-gray-400 text-xs font-medium">{member.phone}</p>
+                          <p className="text-vicoba-dark dark:text-gray-100 font-bold text-sm">{member.name}</p>
+                          <p className="text-gray-400 dark:text-gray-500 text-xs font-medium">{member.phone}</p>
                         </div>
                       </div>
                     </td>
@@ -207,7 +208,7 @@ const MembersPage = () => {
                       <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
                         member.role === 'admin' ? 'border-amber-200 text-vicoba-gold bg-amber-50' :
                         member.role === 'secretary' ? 'border-indigo-100 text-indigo-600 bg-indigo-50' :
-                        'border-gray-200 text-gray-500 bg-gray-50'
+                        'border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 bg-gray-50 dark:bg-gray-950'
                       }`}>
                         {member.role === 'admin' ? 'Mwenyekiti' : member.role === 'secretary' ? 'Katibu' : 'Mwanachama'}
                       </span>
@@ -219,7 +220,7 @@ const MembersPage = () => {
                         {canManage && (
                           <button
                             onClick={() => openContributionModal(member)}
-                            className="p-2 rounded-xl border border-gray-200 text-vicoba-forest hover:bg-emerald-50 hover:border-emerald-200 transition-colors bg-white shadow-sm"
+                            className="p-2 rounded-xl border border-gray-200 dark:border-gray-700 text-vicoba-forest hover:bg-emerald-50 hover:border-emerald-200 transition-colors bg-white dark:bg-gray-900 shadow-sm"
                             title="Jaza Michango"
                           >
                             <FaPiggyBank size={14} />
@@ -228,7 +229,7 @@ const MembersPage = () => {
                         {isAdmin && member._id !== currentUser._id && (
                           <button
                             onClick={() => { setMemberToDelete(member); setIsDeleteModalOpen(true); }}
-                            className="p-2 rounded-xl border border-gray-200 text-vicoba-earth hover:bg-red-50 hover:border-red-200 transition-colors bg-white shadow-sm"
+                            className="p-2 rounded-xl border border-gray-200 dark:border-gray-700 text-vicoba-earth hover:bg-red-50 hover:border-red-200 transition-colors bg-white dark:bg-gray-900 shadow-sm"
                             title="Futa Mwanachama"
                           >
                             <FaTrash size={14} />
@@ -240,8 +241,8 @@ const MembersPage = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="p-16 text-center text-gray-400 font-medium text-sm">
-                    Hakuna mwanachama aliyepatikana
+                  <td colSpan="5" className="p-16 text-center text-gray-400 dark:text-gray-500 font-medium text-sm">
+                    {t('no_members')}
                   </td>
                 </tr>
               )}
@@ -253,13 +254,13 @@ const MembersPage = () => {
       {/* REGISTER MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center bg-vicoba-dark/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="bg-white p-6 md:p-8 w-full max-w-lg rounded-2xl border border-gray-100 shadow-xl my-auto relative">
-            <button onClick={closeRegisterModal} className="absolute top-4 right-4 text-gray-400 hover:text-vicoba-dark transition-colors">
+          <div className="bg-white dark:bg-gray-900 p-6 md:p-8 w-full max-w-lg rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl my-auto relative">
+            <button onClick={closeRegisterModal} className="absolute top-4 right-4 text-gray-400 dark:text-gray-500 hover:text-vicoba-dark dark:text-gray-100 transition-colors">
               <FaXmark size={20} />
             </button>
 
             <div className="mb-6">
-              <h3 className="text-xl font-bold text-vicoba-dark tracking-tight">Sajili Mwanachama Mpya</h3>
+              <h3 className="text-xl font-bold text-vicoba-dark dark:text-gray-100 tracking-tight">{t('register_member')}</h3>
               <p className="text-xs font-semibold text-vicoba-forest bg-vicoba-forest/5 px-2 py-1 rounded mt-1.5 w-fit">
                 Kikundi: {currentUser?.groupId?.name}
               </p>
@@ -267,9 +268,9 @@ const MembersPage = () => {
 
             <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
               <div>
-                <label className={labelClass}>Jina Kamili</label>
+                <label className={labelClass}>{t('full_name')}</label>
                 <div className="relative flex items-center">
-                  <FaUser className="absolute left-4 text-gray-400 text-sm" />
+                  <FaUser className="absolute left-4 text-gray-400 dark:text-gray-500 text-sm" />
                   <input
                     {...registerForm.register('name', { required: 'Jina ni lazima' })}
                     className={inputClass}
@@ -284,9 +285,9 @@ const MembersPage = () => {
               </div>
 
               <div>
-                <label className={labelClass}>Namba ya Simu</label>
+                <label className={labelClass}>{t('phone_number')}</label>
                 <div className="relative flex items-center">
-                  <FaPhone className="absolute left-4 text-gray-400 text-sm" />
+                  <FaPhone className="absolute left-4 text-gray-400 dark:text-gray-500 text-sm" />
                   <input
                     {...registerForm.register('phone', { required: 'Namba ya simu ni lazima' })}
                     className={inputClass}
@@ -302,10 +303,10 @@ const MembersPage = () => {
 
               {isAdmin && (
                 <div>
-                  <label className={labelClass}>Wajibu Kwenye Kikundi (User Role)</label>
+                  <label className={labelClass}>{t('user_role')}</label>
                   <select
                     {...registerForm.register('role')}
-                    className="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark text-sm font-semibold cursor-pointer transition-all"
+                    className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 p-3 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark dark:text-gray-100 text-sm font-semibold cursor-pointer transition-all"
                   >
                     <option value="member">Mwanachama (Member)</option>
                     <option value="secretary">Katibu (Secretary)</option>
@@ -316,16 +317,16 @@ const MembersPage = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>Hisa za Kwanza (TZS)</label>
+                  <label className={labelClass}>{t('first_shares')}</label>
                   <div className="relative flex items-center">
-                    <FaPiggyBank className="absolute left-4 text-gray-400 text-sm" />
+                    <FaPiggyBank className="absolute left-4 text-gray-400 dark:text-gray-500 text-sm" />
                     <input type="number" min="0" {...registerForm.register('shares')} className={inputClass} placeholder="0" />
                   </div>
                 </div>
                 <div>
-                  <label className={labelClass}>Mfuko wa Jamii (TZS)</label>
+                  <label className={labelClass}>{t('social_fund_input')}</label>
                   <div className="relative flex items-center">
-                    <FaShieldAlt className="absolute left-4 text-gray-400 text-sm" />
+                    <FaShieldAlt className="absolute left-4 text-gray-400 dark:text-gray-500 text-sm" />
                     <input type="number" min="0" {...registerForm.register('socialFund')} className={inputClass} placeholder="0" />
                   </div>
                 </div>
@@ -333,20 +334,20 @@ const MembersPage = () => {
 
               <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-center">
                 <p className="text-xs text-vicoba-gold font-bold">
-                  Nywila ya kwanza itakuwa jina la mwanachama kwa herufi ndogo (bila nafasi).
+                  {t('first_password_note')}
                 </p>
               </div>
 
               <div className="flex gap-4 pt-2">
-                <button type="button" onClick={closeRegisterModal} className="flex-1 py-3 text-gray-500 font-bold text-sm transition-colors hover:text-vicoba-dark">
-                  Ghairi
+                <button type="button" onClick={closeRegisterModal} className="flex-1 py-3 text-gray-500 dark:text-gray-300 font-bold text-sm transition-colors hover:text-vicoba-dark dark:text-gray-100">
+                  {t('cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={createMutation.isPending}
                   className="flex-1 bg-vicoba-forest hover:bg-emerald-900 text-white py-3 rounded-xl font-bold text-sm transition-colors shadow-md shadow-vicoba-forest/15 disabled:opacity-60 active:scale-[0.99] flex items-center justify-center gap-2"
                 >
-                  {createMutation.isPending ? <><Spinner /> Inasajili...</> : 'Kamilisha Usajili'}
+                  {createMutation.isPending ? <><Spinner /> {t('registering')}</> : t('complete_registration')}
                 </button>
               </div>
             </form>
@@ -357,13 +358,13 @@ const MembersPage = () => {
       {/* CONTRIBUTION MODAL */}
       {isContributionModalOpen && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center bg-vicoba-dark/60 backdrop-blur-sm p-4">
-          <div className="bg-white p-6 md:p-8 w-full max-w-md rounded-2xl border border-gray-100 shadow-xl relative">
-            <button onClick={closeContributionModal} className="absolute top-4 right-4 text-gray-400 hover:text-vicoba-dark transition-colors">
+          <div className="bg-white dark:bg-gray-900 p-6 md:p-8 w-full max-w-md rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl relative">
+            <button onClick={closeContributionModal} className="absolute top-4 right-4 text-gray-400 dark:text-gray-500 hover:text-vicoba-dark dark:text-gray-100 transition-colors">
               <FaXmark size={20} />
             </button>
 
             <div className="mb-6">
-              <h3 className="text-xl font-bold text-vicoba-dark tracking-tight">Rekodi Malipo ya Mchango</h3>
+              <h3 className="text-xl font-bold text-vicoba-dark dark:text-gray-100 tracking-tight">{t('record_contribution')}</h3>
               <p className="text-xs font-semibold text-vicoba-forest bg-vicoba-forest/5 px-2 py-1 rounded mt-1.5 w-fit">
                 Mwanachama: {selectedMember?.name}
               </p>
@@ -371,10 +372,10 @@ const MembersPage = () => {
 
             <form onSubmit={recordForm.handleSubmit(onRecord)} className="space-y-5">
               <div>
-                <label className={labelClass}>Mwezi wa Malipo</label>
+                <label className={labelClass}>{t('payment_month')}</label>
                 <select
                   {...recordForm.register('month', { required: true })}
-                  className="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark text-sm font-semibold cursor-pointer transition-all"
+                  className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 p-3 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark dark:text-gray-100 text-sm font-semibold cursor-pointer transition-all"
                 >
                   {months.map((m) => (
                     <option key={m.val} value={m.val} disabled={m.val > currentMonth}>
@@ -385,24 +386,24 @@ const MembersPage = () => {
               </div>
 
               <div>
-                <label className={labelClass}>Aina ya Mchango</label>
+                <label className={labelClass}>{t('contribution_type')}</label>
                 <select
                   {...recordForm.register('type', { required: true })}
-                  className="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark text-sm font-semibold cursor-pointer transition-all"
+                  className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 p-3 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark dark:text-gray-100 text-sm font-semibold cursor-pointer transition-all"
                 >
-                  <option value="share">Hisa (Shares)</option>
-                  <option value="social_fund">Mfuko wa Jamii</option>
+                  <option value="share">{t('share_type')}</option>
+                  <option value="social_fund">{t('social_type')}</option>
                 </select>
               </div>
 
               <div>
-                <label className={labelClass}>Kiasi cha Fedha (TZS)</label>
+                <label className={labelClass}>{t('amount_tzs')}</label>
                 <input
                   type="number"
                   min="1"
                   {...recordForm.register('amount', { required: 'Ingiza kiasi', min: { value: 1, message: 'Kiasi lazima kiwe zaidi ya 0' } })}
                   placeholder="Mfano: 50000"
-                  className="w-full bg-gray-50 border border-gray-300 p-3.5 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark text-base font-bold transition-all"
+                  className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 p-3.5 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark dark:text-gray-100 text-base font-bold transition-all"
                 />
                 {recordForm.formState.errors.amount && (
                   <span className="text-xs text-vicoba-earth font-bold block mt-1">
@@ -412,15 +413,15 @@ const MembersPage = () => {
               </div>
 
               <div className="flex gap-4 pt-2">
-                <button type="button" onClick={closeContributionModal} className="flex-1 py-3 text-gray-500 font-bold text-sm transition-colors hover:text-vicoba-dark">
-                  Ghairi
+                <button type="button" onClick={closeContributionModal} className="flex-1 py-3 text-gray-500 dark:text-gray-300 font-bold text-sm transition-colors hover:text-vicoba-dark dark:text-gray-100">
+                  {t('cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={recordMutation.isPending}
                   className="flex-1 bg-vicoba-forest hover:bg-emerald-900 text-white py-3 rounded-xl font-bold text-sm transition-colors shadow-md shadow-vicoba-forest/15 disabled:opacity-60 active:scale-[0.99] flex items-center justify-center gap-2"
                 >
-                  {recordMutation.isPending ? <><Spinner /> Inahifadhi...</> : 'Hifadhi Mchango'}
+                  {recordMutation.isPending ? <><Spinner /> {t('saving')}</> : t('save_contribution')}
                 </button>
               </div>
             </form>
@@ -430,7 +431,7 @@ const MembersPage = () => {
 
       <ConfirmModal
         isOpen={isDeleteModalOpen}
-        title="Ondoa Mwanachama?"
+        title={t('delete_member_title')}
         message={`Je, una uhakika unataka kumfuta ${memberToDelete?.name} kutoka kwenye mfumo? Kitendo hiki hakina marekebisho.`}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setIsDeleteModalOpen(false)}

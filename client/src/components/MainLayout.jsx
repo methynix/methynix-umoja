@@ -4,7 +4,7 @@ import Sidebar from './Sidebar';
 
 const MainLayout = () => {
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50 text-vicoba-dark antialiased">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50 dark:bg-gray-950 text-vicoba-dark dark:text-gray-100 antialiased">
       <Sidebar />
       
       <main className="flex-1 p-4 md:p-10 pb-24 md:pb-10 relative overflow-x-hidden">

@@ -1,9 +1,11 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { FaExclamationTriangle, FaHome } from 'react-icons/fa';
 
 const NotFound = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-6 relative overflow-hidden">
@@ -18,8 +20,8 @@ const NotFound = () => {
           404
         </h1>
 
-        <h2 className="text-4xl font-bold text-white mb-4">Ukurasa Haupo</h2>
-        <p className="text-gray-400 max-w-md mx-auto mb-8">
+        <h2 className="text-4xl font-bold text-white mb-4">{t('not_found_title')}</h2>
+        <p className="text-gray-400 dark:text-gray-500 max-w-md mx-auto mb-8">
           The page you are looking for has been moved or doesn't exist in the Methynix grid.
         </p>
 
@@ -27,7 +29,7 @@ const NotFound = () => {
           onClick={() => navigate('/')}
           className="btn-glow px-8 py-4 rounded-2xl font-bold flex items-center gap-3 mx-auto transition-transform active:scale-95"
         >
-          <FaHome /> RUDI NYUMBANI (HOME)
+          <FaHome /> {t('go_home')}
         </button>
       </div>
       

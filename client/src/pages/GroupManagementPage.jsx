@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -16,6 +17,7 @@ import Spinner from '../components/Spinner';
 const GroupManagementPage = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
 
@@ -91,23 +93,23 @@ const GroupManagementPage = () => {
     <div className="space-y-6 pb-20">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
-          <h2 className="text-2xl md:text-3xl font-extrabold text-vicoba-dark tracking-tight flex items-center gap-2.5">
-            <FaLayerGroup className="text-vicoba-forest" /> Usimamizi wa Vikundi
+          <h2 className="text-2xl md:text-3xl font-extrabold text-vicoba-dark dark:text-gray-100 tracking-tight flex items-center gap-2.5">
+            <FaLayerGroup className="text-vicoba-forest" /> {t('groups_mgmt')}
           </h2>
-          <p className="text-sm font-medium text-gray-500 mt-1">
-            Dhibiti vikundi vyote na mipangilio mikuu ya mfumo
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-300 mt-1">
+            {t('groups_mgmt_sub')}
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
           <div className="relative w-full sm:w-64">
-            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs" />
+            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-xs" />
             <input
               type="text"
-              placeholder="Tafuta kikundi..."
+              placeholder={t('search_group')}
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              className="w-full bg-white border border-gray-100 p-3 pl-10 rounded-2xl text-xs font-bold outline-none focus:border-vicoba-forest shadow-sm"
+              className="w-full bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-3 pl-10 rounded-2xl text-xs font-bold outline-none focus:border-vicoba-forest shadow-sm"
             />
           </div>
 
@@ -115,13 +117,13 @@ const GroupManagementPage = () => {
             onClick={() => { coAdminForm.reset({ name: '', phone: '', password: '' }); setCoAdminOpen(true); }}
             className="w-full sm:w-auto bg-vicoba-dark hover:bg-stone-800 text-white flex items-center justify-center gap-2 px-5 py-3 rounded-2xl font-bold text-xs transition-colors shadow-sm"
           >
-            <FaUserShield /> Sajili Msimamizi Mwenzako
+            <FaUserShield /> {t('register_co_admin')}
           </button>
 
-          <div className="flex items-center justify-between gap-4 bg-white p-3 px-4 rounded-2xl border border-gray-100 shadow-sm shadow-vicoba-forest/5 w-full sm:w-auto">
-            <div className="flex items-center gap-2 text-gray-500">
+          <div className="flex items-center justify-between gap-4 bg-white dark:bg-gray-900 p-3 px-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm shadow-vicoba-forest/5 w-full sm:w-auto">
+            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-300">
               <FaSliders className="text-vicoba-earth text-sm" />
-              <span className="text-xs font-bold uppercase tracking-wide">Maintenance</span>
+              <span className="text-xs font-bold uppercase tracking-wide">{t('maintenance')}</span>
             </div>
 
             <label className="relative inline-flex items-center cursor-pointer select-none">
@@ -132,7 +134,7 @@ const GroupManagementPage = () => {
                 onChange={(e) => requestToggle(e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-red-100 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-vicoba-earth peer-disabled:opacity-50"></div>
+              <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-red-100 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white dark:bg-gray-900 after:border-gray-300 dark:border-gray-700 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-vicoba-earth peer-disabled:opacity-50"></div>
             </label>
           </div>
         </div>
@@ -140,7 +142,7 @@ const GroupManagementPage = () => {
 
       {isMaintenance && (
         <div className="bg-amber-50 border border-amber-200 text-vicoba-gold text-xs font-bold px-4 py-3 rounded-xl">
-          ⚠️ Mfumo upo kwenye Matengenezo. Watumiaji wengine wameshindwa kuingia hadi utakapozima hali hii.
+          ⚠️ {t('maintenance_on_warn')}
         </div>
       )}
 
@@ -148,28 +150,28 @@ const GroupManagementPage = () => {
         {groupData?.groups?.map((group) => (
           <div
             key={group._id}
-            className="bg-white p-5 rounded-2xl border border-gray-100 shadow-md shadow-vicoba-forest/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all hover:border-gray-200"
+            className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-md shadow-vicoba-forest/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all hover:border-gray-200 dark:border-gray-700"
           >
             <div className="space-y-1">
-              <h4 className="font-extrabold text-lg text-vicoba-dark uppercase tracking-tight">{group.name}</h4>
-              <div className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-lg text-xs font-bold text-gray-500">
-                <span>Code ya Kikundi:</span>
+              <h4 className="font-extrabold text-lg text-vicoba-dark dark:text-gray-100 uppercase tracking-tight">{group.name}</h4>
+              <div className="inline-flex items-center gap-1.5 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 px-2.5 py-1 rounded-lg text-xs font-bold text-gray-500 dark:text-gray-300">
+                <span>{t('group_code')}:</span>
                 <span className="text-vicoba-gold font-mono">{group.groupCode}</span>
               </div>
             </div>
 
             <button
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-gray-200 text-vicoba-dark hover:bg-gray-50 hover:border-gray-300 font-bold text-sm transition-colors flex items-center justify-center gap-2 bg-white shadow-sm shadow-vicoba-forest/5"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-vicoba-dark dark:text-gray-100 hover:bg-gray-50 dark:bg-gray-950 hover:border-gray-300 dark:border-gray-700 font-bold text-sm transition-colors flex items-center justify-center gap-2 bg-white dark:bg-gray-900 shadow-sm shadow-vicoba-forest/5"
               onClick={() => navigate(`/dashboard/groups/${group._id}/members`)}
             >
-              <FaEye size={14} className="text-gray-400" /> Angalia Wanachama
+              <FaEye size={14} className="text-gray-400 dark:text-gray-500" /> {t('view_members')}
             </button>
           </div>
         ))}
 
         {groupData?.groups?.length === 0 && (
-          <div className="p-16 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200 text-gray-400 font-medium text-sm uppercase tracking-widest">
-            Hakuna kikundi kilichopatikana
+          <div className="p-16 text-center bg-gray-50 dark:bg-gray-950 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 font-medium text-sm uppercase tracking-widest">
+            {t('no_groups')}
           </div>
         )}
       </div>
@@ -179,17 +181,17 @@ const GroupManagementPage = () => {
           <button
             disabled={page === 1}
             onClick={() => setPage((p) => p - 1)}
-            className="p-3 rounded-xl border border-gray-200 bg-white text-vicoba-dark disabled:opacity-30 hover:bg-gray-50 transition-all"
+            className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-vicoba-dark dark:text-gray-100 disabled:opacity-30 hover:bg-gray-50 dark:bg-gray-950 transition-all"
           >
             <FaChevronLeft size={14} />
           </button>
-          <span className="text-xs font-black text-gray-500 uppercase tracking-widest">
+          <span className="text-xs font-black text-gray-500 dark:text-gray-300 uppercase tracking-widest">
             Ukurasa {page} kati ya {groupData.pages}
           </span>
           <button
             disabled={page >= groupData.pages}
             onClick={() => setPage((p) => p + 1)}
-            className="p-3 rounded-xl border border-gray-200 bg-white text-vicoba-dark disabled:opacity-30 hover:bg-gray-50 transition-all"
+            className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-vicoba-dark dark:text-gray-100 disabled:opacity-30 hover:bg-gray-50 dark:bg-gray-950 transition-all"
           >
             <FaChevronRight size={14} />
           </button>
@@ -199,29 +201,29 @@ const GroupManagementPage = () => {
       {/* CO-ADMIN (SUPERADMIN) REGISTRATION */}
       {coAdminOpen && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center bg-vicoba-dark/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="bg-white p-6 md:p-8 w-full max-w-md rounded-2xl border border-gray-100 shadow-xl my-auto relative">
+          <div className="bg-white dark:bg-gray-900 p-6 md:p-8 w-full max-w-md rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl my-auto relative">
             <button
               onClick={() => setCoAdminOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-vicoba-dark transition-colors"
+              className="absolute top-4 right-4 text-gray-400 dark:text-gray-500 hover:text-vicoba-dark dark:text-gray-100 transition-colors"
             >
               <FaXmark size={20} />
             </button>
 
             <div className="mb-6">
-              <h3 className="text-xl font-bold text-vicoba-dark tracking-tight">Sajili Msimamizi Mwenzako</h3>
-              <p className="text-xs font-semibold text-gray-500 mt-1.5">
-                Watapata mamlaka kamili ya Msimamizi Mkuu (sio mwanachama wa kikundi).
+              <h3 className="text-xl font-bold text-vicoba-dark dark:text-gray-100 tracking-tight">{t('co_admin_title')}</h3>
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-300 mt-1.5">
+                {t('co_admin_note')}
               </p>
             </div>
 
             <form onSubmit={coAdminForm.handleSubmit(onCreateCoAdmin)} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-vicoba-dark mb-1.5">Jina Kamili</label>
+                <label className="block text-xs font-bold text-vicoba-dark dark:text-gray-100 mb-1.5">Jina Kamili</label>
                 <div className="relative flex items-center">
-                  <FaUser className="absolute left-4 text-gray-400 text-sm" />
+                  <FaUser className="absolute left-4 text-gray-400 dark:text-gray-500 text-sm" />
                   <input
                     {...coAdminForm.register('name', { required: 'Jina ni lazima' })}
-                    className="w-full bg-gray-50 border border-gray-300 p-3 pl-11 rounded-xl focus:ring-2 focus:ring-vicoba-leaf outline-none text-vicoba-dark text-sm font-semibold transition-all"
+                    className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 p-3 pl-11 rounded-xl focus:ring-2 focus:ring-vicoba-leaf outline-none text-vicoba-dark dark:text-gray-100 text-sm font-semibold transition-all"
                     placeholder="Jina la msimamizi"
                   />
                 </div>
@@ -233,12 +235,12 @@ const GroupManagementPage = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-vicoba-dark mb-1.5">Namba ya Simu</label>
+                <label className="block text-xs font-bold text-vicoba-dark dark:text-gray-100 mb-1.5">Namba ya Simu</label>
                 <div className="relative flex items-center">
-                  <FaPhone className="absolute left-4 text-gray-400 text-sm" />
+                  <FaPhone className="absolute left-4 text-gray-400 dark:text-gray-500 text-sm" />
                   <input
                     {...coAdminForm.register('phone', { required: 'Namba ya simu ni lazima' })}
-                    className="w-full bg-gray-50 border border-gray-300 p-3 pl-11 rounded-xl focus:ring-2 focus:ring-vicoba-leaf outline-none text-vicoba-dark text-sm font-semibold transition-all"
+                    className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 p-3 pl-11 rounded-xl focus:ring-2 focus:ring-vicoba-leaf outline-none text-vicoba-dark dark:text-gray-100 text-sm font-semibold transition-all"
                     placeholder="07xxxxxxxx"
                   />
                 </div>
@@ -259,7 +261,7 @@ const GroupManagementPage = () => {
               />
 
               <div className="flex gap-4 pt-2">
-                <button type="button" onClick={() => setCoAdminOpen(false)} className="flex-1 py-3 text-gray-500 font-bold text-sm transition-colors hover:text-vicoba-dark">
+                <button type="button" onClick={() => setCoAdminOpen(false)} className="flex-1 py-3 text-gray-500 dark:text-gray-300 font-bold text-sm transition-colors hover:text-vicoba-dark dark:text-gray-100">
                   Ghairi
                 </button>
                 <button
@@ -267,7 +269,7 @@ const GroupManagementPage = () => {
                   disabled={createCoAdmin.isPending}
                   className="flex-1 bg-vicoba-forest hover:bg-emerald-900 text-white py-3 rounded-xl font-bold text-sm transition-colors shadow-md shadow-vicoba-forest/15 disabled:opacity-60 active:scale-[0.99] flex items-center justify-center gap-2"
                 >
-                  {createCoAdmin.isPending ? <><Spinner /> Inasajili...</> : 'Sajili'}
+                  {createCoAdmin.isPending ? <><Spinner /> {t('registering')}</> : t('register')}
                 </button>
               </div>
             </form>
@@ -277,7 +279,7 @@ const GroupManagementPage = () => {
 
       <ConfirmModal
         isOpen={maintConfirmOpen}
-        title={pendingMaintValue ? 'Washa Matengenezo?' : 'Zima Matengenezo?'}
+        title={pendingMaintValue ? t('enable_maintenance_q') : t('disable_maintenance_q')}
         message={
           pendingMaintValue
             ? 'Ukiwasha, watumiaji wengine wote hawataweza kuingia wala kutumia mfumo hadi utakapozima. Wewe (Msimamizi Mkuu) utaendelea kuingia kawaida.'

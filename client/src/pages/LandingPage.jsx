@@ -7,7 +7,7 @@ const LandingPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gray-50 text-vicoba-dark selection:bg-vicoba-forest/10">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-vicoba-dark dark:text-gray-100 selection:bg-vicoba-forest/10">
       <div className="relative min-h-[85vh] flex flex-col justify-center items-center text-center p-6 overflow-hidden">
         
         <div className="absolute inset-0 z-0">
@@ -27,7 +27,7 @@ const LandingPage = () => {
             Mfumo wa Kidijitali wa Vikoba
           </span>
           
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-vicoba-dark tracking-tight leading-none drop-shadow-sm">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-vicoba-dark dark:text-gray-100 tracking-tight leading-none drop-shadow-sm">
             METHYNIX <span className="text-vicoba-forest">UMOJA VIKOBA</span>
           </h1>
           
@@ -70,12 +70,12 @@ const LandingPage = () => {
 };
 
 const FeatureCard = ({ icon, title, desc }) => (
-  <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 shadow-md shadow-vicoba-forest/5 flex flex-col items-center text-center transition-all hover:border-gray-200 group">
+  <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-md shadow-vicoba-forest/5 flex flex-col items-center text-center transition-all hover:border-gray-200 dark:border-gray-700 group">
     <div className="w-14 h-14 rounded-xl bg-emerald-50 text-vicoba-forest flex items-center justify-center text-2xl mb-5 group-hover:bg-vicoba-forest group-hover:text-white transition-colors">
       {icon}
     </div>
-    <h3 className="text-xl font-extrabold text-vicoba-dark mb-2.5">{title}</h3>
-    <p className="text-sm font-medium text-gray-400 leading-relaxed">{desc}</p>
+    <h3 className="text-xl font-extrabold text-vicoba-dark dark:text-gray-100 mb-2.5">{title}</h3>
+    <p className="text-sm font-medium text-gray-400 dark:text-gray-500 leading-relaxed">{desc}</p>
   </div>
 );
 

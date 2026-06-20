@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from '../services/axiosInstance';
@@ -14,6 +15,7 @@ const ROLE_LABELS = {
 const GroupMembersPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const { data: members, isLoading, isError, error } = useQuery({
     queryKey: ['groupDetailMembers', id],
@@ -42,7 +44,7 @@ const GroupMembersPage = () => {
           onClick={() => navigate('/dashboard/manage-groups')}
           className="bg-vicoba-forest hover:bg-emerald-900 text-white px-6 py-3 rounded-xl font-bold text-sm transition-colors"
         >
-          Rudi kwenye Vikundi
+          {t('back_to_groups')}
         </button>
       </div>
     );
@@ -53,48 +55,48 @@ const GroupMembersPage = () => {
       <div className="flex items-center gap-3">
         <button
           onClick={() => navigate('/dashboard/manage-groups')}
-          className="p-2.5 rounded-xl border border-gray-200 bg-white text-vicoba-dark hover:bg-gray-50 transition-colors shadow-sm"
+          className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-vicoba-dark dark:text-gray-100 hover:bg-gray-50 dark:bg-gray-950 transition-colors shadow-sm"
           aria-label="Rudi"
         >
           <FaArrowLeft size={14} />
         </button>
         <div>
-          <h2 className="text-2xl md:text-3xl font-extrabold text-vicoba-dark tracking-tight">Wanachama wa Kikundi</h2>
-          <p className="text-gray-500 text-sm font-medium mt-1">Jumla: {members?.length || 0}</p>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-vicoba-dark dark:text-gray-100 tracking-tight">{t('group_members_title')}</h2>
+          <p className="text-gray-500 dark:text-gray-300 text-sm font-medium mt-1">{t('total')}: {members?.length || 0}</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-md shadow-vicoba-forest/5 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-md shadow-vicoba-forest/5 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[600px] text-left">
-            <thead className="bg-gray-50 text-xs font-bold text-gray-500 border-b border-gray-100">
+            <thead className="bg-gray-50 dark:bg-gray-950 text-xs font-bold text-gray-500 dark:text-gray-300 border-b border-gray-100 dark:border-gray-800">
               <tr>
-                <th className="p-4">Jina</th>
-                <th className="p-4">Namba ya Simu</th>
-                <th className="p-4">Wajibu</th>
-                <th className="p-4 text-right">Tarehe ya Kujiunga</th>
+                <th className="p-4">{t('name')}</th>
+                <th className="p-4">{t('phone_number')}</th>
+                <th className="p-4">{t('user_role')}</th>
+                <th className="p-4 text-right">{t('join_date')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {members?.length > 0 ? (
                 members.map((m) => (
                   <tr key={m._id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="p-4 text-vicoba-dark font-bold text-sm">{m.name}</td>
-                    <td className="p-4 text-gray-500 text-sm font-medium">{m.phone}</td>
+                    <td className="p-4 text-vicoba-dark dark:text-gray-100 font-bold text-sm">{m.name}</td>
+                    <td className="p-4 text-gray-500 dark:text-gray-300 text-sm font-medium">{m.phone}</td>
                     <td className="p-4">
-                      <span className="px-2.5 py-0.5 rounded-full text-xs font-bold border border-gray-200 text-gray-500 bg-gray-50">
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-bold border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 bg-gray-50 dark:bg-gray-950">
                         {ROLE_LABELS[m.role] || 'Mwanachama'}
                       </span>
                     </td>
-                    <td className="p-4 text-right text-xs text-gray-400 font-medium">
+                    <td className="p-4 text-right text-xs text-gray-400 dark:text-gray-500 font-medium">
                       {m.createdAt ? new Date(m.createdAt).toLocaleDateString('en-GB') : '-'}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="p-16 text-center text-gray-400 font-medium text-sm">
-                    Kikundi hiki hakina wanachama bado
+                  <td colSpan="4" className="p-16 text-center text-gray-400 dark:text-gray-500 font-medium text-sm">
+                    {t('no_group_members')}
                   </td>
                 </tr>
               )}

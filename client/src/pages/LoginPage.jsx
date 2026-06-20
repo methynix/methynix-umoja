@@ -1,5 +1,6 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
@@ -7,6 +8,7 @@ import PasswordInput from '../components/PasswordInput';
 import Spinner from '../components/Spinner';
 
 const LoginPage = () => {
+  const { t } = useTranslation();
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -21,30 +23,30 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-vicoba-cream flex items-center justify-center p-4">
+    <div className="min-h-screen bg-vicoba-cream dark:bg-gray-950 flex items-center justify-center p-4">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-600/20 blur-[100px] rounded-full"></div>
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-green-600/20 blur-[100px] rounded-full"></div>
       </div>
 
-      <div className="bg-white p-10 w-full max-w-md relative z-10 border border-gray-100 rounded-2xl shadow-2xl">
+      <div className="bg-white dark:bg-gray-900 p-10 w-full max-w-md relative z-10 border border-gray-100 dark:border-gray-800 rounded-2xl shadow-2xl">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-extrabold text-vicoba-forest tracking-tight">
             METHYNIX VICOBA
           </h1>
-          <p className="text-vicoba-dark font-medium mt-2 text-base">
-            Karibu tena | Welcome back
+          <p className="text-vicoba-dark dark:text-gray-100 font-medium mt-2 text-base">
+            {t('welcome_login')}
           </p>
         </div>
 
         <form onSubmit={handleSubmit(onLogin)} className="space-y-6" noValidate>
           <div>
-            <label className="block text-sm font-bold text-vicoba-dark mb-2">
-              Namba ya Simu / Phone Number
+            <label className="block text-sm font-bold text-vicoba-dark dark:text-gray-100 mb-2">
+              {t('phone_number')}
             </label>
             <input
               {...register('phone', { required: 'Namba ya simu inahitajika' })}
-              className="w-full bg-gray-50 border border-gray-300 p-4 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark text-base transition-all font-medium"
+              className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 p-4 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark dark:text-gray-100 text-base transition-all font-medium"
               placeholder="07xxxxxxxx"
             />
             {errors.phone && (
@@ -58,8 +60,8 @@ const LoginPage = () => {
             register={register}
             name="password"
             errors={errors}
-            label="Neno la Siri / PIN"
-            placeholder="Ingiza nywila yako"
+            label={t('pin_label')}
+            placeholder={t('enter_password')}
             rules={{ required: 'Nywila inahitajika' }}
           />
 
@@ -70,22 +72,22 @@ const LoginPage = () => {
           >
             {isSubmitting ? (
               <>
-                <Spinner /> Inaingia...
+                <Spinner /> {t('logging_in')}
               </>
             ) : (
-              'Ingia Kwenye Akaunti'
+              t('login_btn')
             )}
           </button>
         </form>
 
-        <p className="text-center text-vicoba-dark mt-8 text-sm font-medium">
-          Sio mwanachama bado?{' '}
+        <p className="text-center text-vicoba-dark dark:text-gray-100 mt-8 text-sm font-medium">
+          {t('not_member_yet')}{' '}
           <Link to="/register" className="text-vicoba-forest hover:text-vicoba-leaf font-bold underline transition-colors">
-            Sajili Kikundi Hapa
+            {t('register_group_here')}
           </Link>
         </p>
 
-        <p className="text-center text-gray-400 text-xs font-semibold mt-6">
+        <p className="text-center text-gray-400 dark:text-gray-500 text-xs font-semibold mt-6">
           © {new Date().getFullYear()} Methynix Software
         </p>
       </div>

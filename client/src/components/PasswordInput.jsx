@@ -20,7 +20,7 @@ const PasswordInput = ({
   return (
     <div className="space-y-1.5 w-full">
       {label && (
-        <label className="block text-xs font-bold text-vicoba-dark uppercase tracking-wide">
+        <label className="block text-xs font-bold text-vicoba-dark dark:text-gray-100 uppercase tracking-wide">
           {label}
         </label>
       )}
@@ -29,16 +29,16 @@ const PasswordInput = ({
         <input
           type={show ? 'text' : 'password'}
           {...register(name, { required: 'Sehemu hii ni lazima', ...rules })}
-          className={`w-full bg-gray-50 border ${
-            fieldError ? 'border-vicoba-earth' : 'border-gray-300'
-          } p-3.5 pl-12 pr-12 rounded-xl focus:ring-2 focus:ring-vicoba-leaf outline-none text-vicoba-dark text-sm font-medium transition-all`}
+          className={`w-full bg-gray-50 dark:bg-gray-950 border ${
+            fieldError ? 'border-vicoba-earth' : 'border-gray-300 dark:border-gray-700'
+          } p-3.5 pl-12 pr-12 rounded-xl focus:ring-2 focus:ring-vicoba-leaf outline-none text-vicoba-dark dark:text-gray-100 text-sm font-medium transition-all`}
           placeholder={placeholder}
         />
         <button
           type="button"
           onClick={() => setShow((s) => !s)}
           aria-label={show ? 'Ficha nywila' : 'Onyesha nywila'}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-vicoba-forest transition-colors"
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-vicoba-forest transition-colors"
         >
           {show ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
         </button>

@@ -42,10 +42,12 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
 
 
 exports.getMe = asyncHandler(async (req, res, next) => {
+    const user = await User.findById(req.user._id).populate('groupId', 'name groupCode image');
+
     res.status(200).json({
         status: 'success',
         data: {
-            user: req.user
+            user
         }
     });
 });
