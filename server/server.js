@@ -33,6 +33,8 @@ app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 5000;
 dbConnect().then(() => {
+    require('./jobs/smsJob');
+    require('./jobs/membershipJob');
     app.listen(PORT, () => {
         console.log(` Server glowing on port ${PORT} in ${process.env.NODE_ENV} mode`);
     });

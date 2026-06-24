@@ -5,8 +5,14 @@ class LoanRepository {
         return await Loan.create(loanData);
     }
 
+    async findById(loanId) {
+        return await Loan.findById(loanId);
+    }
+
     async findByGroup(groupCode) {
-        return await Loan.find({ groupCode }).populate('member', 'name phone');
+        return await Loan.find({ groupCode })
+            .populate('member', 'name phone role')
+            .sort('-createdAt');
     }
 
     async findByMember(memberId) {
@@ -14,9 +20,9 @@ class LoanRepository {
     }
 
     async updateStatus(loanId, status, adminId) {
-        return await Loan.findByIdAndUpdate(loanId, { 
-            status, 
-            approvedBy: adminId 
+        return await Loan.findByIdAndUpdate(loanId, {
+            status,
+            approvedBy: adminId
         }, { new: true });
     }
 }

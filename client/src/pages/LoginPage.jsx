@@ -14,7 +14,7 @@ const LoginPage = () => {
   const { login } = useAuth();
 
   const onLogin = async (data) => {
-    const success = await login(data.phone, data.password);
+    const success = await login(data.phone, data.password, data.groupCode);
     if (success) {
       toast.success('Umeingia kikamilifu!');
       navigate('/dashboard', { replace: true });
@@ -64,6 +64,18 @@ const LoginPage = () => {
             placeholder={t('enter_password')}
             rules={{ required: 'Nywila inahitajika' }}
           />
+
+          <div>
+            <label className="block text-sm font-bold text-vicoba-dark mb-2">
+              {t('group_code_label')} <span className="text-gray-400 font-medium">({t('optional')})</span>
+            </label>
+            <input
+              {...register('groupCode')}
+              className="w-full bg-gray-50 border border-gray-300 p-4 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark text-base transition-all font-medium"
+              placeholder={t('group_code_optional_hint')}
+            />
+            <span className="text-[11px] text-gray-400 font-medium mt-1 block pl-1">{t('group_code_login_note')}</span>
+          </div>
 
           <button
             type="submit"

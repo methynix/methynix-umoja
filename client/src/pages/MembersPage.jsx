@@ -34,12 +34,19 @@ const MembersPage = () => {
   const registerForm = useForm({
     defaultValues: { name: '', phone: '', role: 'member', shares: 0, socialFund: 0 },
   });
-  const recordForm = useForm({ defaultValues: { month: '', type: 'share', amount: '' } });
+  const recordForm = useForm({ shouldUnregister: true, defaultValues: { month: '', type: 'share', amount: '', shares: '' } });
 
   const isSuper = currentUser?.role === 'superadmin';
   const isAdmin = currentUser?.role === 'admin';
   const isSecretary = currentUser?.role === 'secretary';
-  const canManage = isAdmin || isSecretary;
+  const isTreasurer = currentUser?.role === 'treasurer';
+  const canManage = isAdmin || isSecretary || isTreasurer;
+  const shareValue = currentUser?.groupId?.shareValue || 0;
+  const socialFundAmount = currentUser?.groupId?.socialFundAmount || 0;
+  const mawazoAmount = currentUser?.groupId?.mawazoAmount || 0;
+  const recordType = recordForm.watch('type');
+  const recordShares = recordForm.watch('shares');
+  const fixedFor = (tp) => (tp === 'mawazo' ? mawazoAmount : tp === 'social_fund' ? socialFundAmount : 0);
 
   const months = [
     { val: 1, name: 'Januari' }, { val: 2, name: 'Februari' },
@@ -63,13 +70,13 @@ const MembersPage = () => {
 
   const openContributionModal = (member) => {
     setSelectedMember(member);
-    recordForm.reset({ month: currentMonth, type: 'share', amount: '' });
+    recordForm.reset({ type: 'share', shares: '' });
     setIsContributionModalOpen(true);
   };
   const closeContributionModal = () => {
     setIsContributionModalOpen(false);
     setSelectedMember(null);
-    recordForm.reset({ month: currentMonth, type: 'share', amount: '' });
+    recordForm.reset({ type: 'share', shares: '' });
   };
 
   const filteredMembers = members?.filter(
@@ -90,16 +97,14 @@ const MembersPage = () => {
   };
 
   const onRecord = (data) => {
-    recordMutation.mutate(
-      {
-        memberId: selectedMember._id,
-        type: data.type,
-        amount: Number(data.amount),
-        month: Number(data.month),
-        year: new Date().getFullYear(),
-      },
-      { onSuccess: () => closeContributionModal() }
-    );
+    const payload = {
+      memberId: selectedMember._id,
+      type: data.type,
+    };
+    if (data.type === 'share') {
+      payload.shares = Number(data.shares);
+    }
+    recordMutation.mutate(payload, { onSuccess: () => closeContributionModal() });
   };
 
   const handleDeleteConfirm = () => {
@@ -210,7 +215,7 @@ const MembersPage = () => {
                         member.role === 'secretary' ? 'border-indigo-100 text-indigo-600 bg-indigo-50' :
                         'border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 bg-gray-50 dark:bg-gray-950'
                       }`}>
-                        {member.role === 'admin' ? 'Mwenyekiti' : member.role === 'secretary' ? 'Katibu' : 'Mwanachama'}
+                        {member.role === 'admin' ? 'Mwenyekiti' : member.role === 'secretary' ? 'Katibu' : member.role === 'treasurer' ? 'Muweka Hazina' : 'Mwanachama'}
                       </span>
                     </td>
                     <td className="p-4 text-vicoba-forest font-bold text-sm">TZS {member.shares?.toLocaleString()}</td>
@@ -310,6 +315,7 @@ const MembersPage = () => {
                   >
                     <option value="member">Mwanachama (Member)</option>
                     <option value="secretary">Katibu (Secretary)</option>
+                    <option value="treasurer">Muweka Hazina (Treasurer)</option>
                     <option value="admin">Mwenyekiti (Admin)</option>
                   </select>
                 </div>
@@ -371,18 +377,8 @@ const MembersPage = () => {
             </div>
 
             <form onSubmit={recordForm.handleSubmit(onRecord)} className="space-y-5">
-              <div>
-                <label className={labelClass}>{t('payment_month')}</label>
-                <select
-                  {...recordForm.register('month', { required: true })}
-                  className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 p-3 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark dark:text-gray-100 text-sm font-semibold cursor-pointer transition-all"
-                >
-                  {months.map((m) => (
-                    <option key={m.val} value={m.val} disabled={m.val > currentMonth}>
-                      {m.name} {m.val > currentMonth ? '(Muda bado)' : ''}
-                    </option>
-                  ))}
-                </select>
+              <div className="text-xs font-bold text-vicoba-forest bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/40 rounded-lg px-3 py-2">
+                {t('current_week_note')}
               </div>
 
               <div>
@@ -393,24 +389,42 @@ const MembersPage = () => {
                 >
                   <option value="share">{t('share_type')}</option>
                   <option value="social_fund">{t('social_type')}</option>
+                  <option value="mawazo">{t('mawazo_type')}</option>
                 </select>
               </div>
 
-              <div>
-                <label className={labelClass}>{t('amount_tzs')}</label>
-                <input
-                  type="number"
-                  min="1"
-                  {...recordForm.register('amount', { required: 'Ingiza kiasi', min: { value: 1, message: 'Kiasi lazima kiwe zaidi ya 0' } })}
-                  placeholder="Mfano: 50000"
-                  className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 p-3.5 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark dark:text-gray-100 text-base font-bold transition-all"
-                />
-                {recordForm.formState.errors.amount && (
-                  <span className="text-xs text-vicoba-earth font-bold block mt-1">
-                    {recordForm.formState.errors.amount.message}
-                  </span>
-                )}
-              </div>
+              {recordType === 'share' ? (
+                <div>
+                  <label className={labelClass}>{t('shares_count')}</label>
+                  <input
+                    type="number"
+                    min="1"
+                    {...recordForm.register('shares', { required: t('shares_count_hint'), min: { value: 1, message: 'Lazima iwe zaidi ya 0' } })}
+                    placeholder="Mfano: 5"
+                    className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 p-3.5 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark dark:text-gray-100 text-base font-bold transition-all"
+                  />
+                  <div className="mt-2 text-xs font-bold text-vicoba-forest bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/40 rounded-lg px-3 py-2">
+                    {shareValue > 0
+                      ? `${t('computed_amount')}: TZS ${((Number(recordShares) || 0) * shareValue).toLocaleString()} (${shareValue.toLocaleString()} ${t('per_share')})`
+                      : 'Thamani ya hisa haijawekwa. Mwenyekiti aiweke kwenye Mipangilio ya Kikundi.'}
+                  </div>
+                  {recordForm.formState.errors.shares && (
+                    <span className="text-xs text-vicoba-earth font-bold block mt-1">
+                      {recordForm.formState.errors.shares.message}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <label className={labelClass}>{t('amount_tzs')}</label>
+                  <div className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 p-3.5 rounded-xl text-vicoba-dark dark:text-gray-100 text-base font-bold">
+                    TZS {fixedFor(recordType).toLocaleString()}
+                  </div>
+                  <div className="mt-2 text-xs font-bold text-vicoba-forest bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/40 rounded-lg px-3 py-2">
+                    {fixedFor(recordType) > 0 ? t('fixed_amount_note') : t('fixed_amount_unset')}
+                  </div>
+                </div>
+              )}
 
               <div className="flex gap-4 pt-2">
                 <button type="button" onClick={closeContributionModal} className="flex-1 py-3 text-gray-500 dark:text-gray-300 font-bold text-sm transition-colors hover:text-vicoba-dark dark:text-gray-100">

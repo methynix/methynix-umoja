@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
     name: { type: String, required: [true, 'Jina linahitajika'] },
     phone: { type: String, required: [true, 'Namba ya simu inahitajika'], unique: true },
     password: { type: String, required: true, minlength: 6, select: false },
-    role: { type: String, enum: ['superadmin','admin', 'secretary', 'member'], default: 'member' },
+    role: { type: String, enum: ['superadmin','admin', 'secretary', 'treasurer', 'member'], default: 'member' },
      groupId: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Group' 
@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
     groupCode: String,
     shares: { type: Number, default: 0 },
     socialFund: { type: Number, default: 0 },
+    mawazo: { type: Number, default: 0 },
     activeLoan: { type: mongoose.Schema.Types.ObjectId, ref: 'Loan' }
 }, { timestamps: true });
 

@@ -9,6 +9,8 @@ import {
   FaUser,
   FaSignOutAlt,
   FaLayerGroup,
+  FaCog,
+  FaClipboardCheck,
 } from 'react-icons/fa';
 import { useUserStats } from '../hooks/useUser';
 import { useAuth } from '../hooks/useAuth';
@@ -23,7 +25,8 @@ const Sidebar = () => {
 
   const role = user?.role;
   const isSuper = role === 'superadmin';
-  const isLeader = role === 'admin' || role === 'secretary';
+  const isLeader = role === 'admin' || role === 'secretary' || role === 'treasurer';
+  const isAdmin = role === 'admin';
 
   const navItems = (
     isSuper
@@ -37,6 +40,8 @@ const Sidebar = () => {
           { path: '/dashboard/shares', icon: <FaPiggyBank />, label: t('shares') },
           { path: '/dashboard/loans', icon: <FaMoneyBillWave />, label: t('loans') },
           isLeader && { path: '/dashboard/members', icon: <FaUsers />, label: t('members') },
+          isLeader && { path: '/dashboard/manage-loans', icon: <FaClipboardCheck />, label: t('approvals') },
+          isAdmin && { path: '/dashboard/settings', icon: <FaCog />, label: t('group_settings') },
           { path: '/dashboard/profile', icon: <FaUser />, label: t('profile') },
         ]
   ).filter(Boolean);

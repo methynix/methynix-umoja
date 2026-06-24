@@ -5,14 +5,13 @@ const router = express.Router();
 
 router.use(protect);
 
-// Members (incl. group admins/secretaries who are also savers) request loans.
-// Superadmin is a platform manager and is blocked inside the controller.
-router.post('/request', restrictTo('member', 'admin', 'secretary'), loanController.requestLoan);
+router.post('/request', restrictTo('member', 'admin', 'secretary', 'treasurer'), loanController.requestLoan);
 
 router.get('/my-loans', loanController.getMyLoans);
 
-// Group leaders see and act on their group's loan requests.
-router.get('/group-loans', restrictTo('admin', 'secretary'), loanController.getGroupLoans);
+router.get('/group-loans', restrictTo('admin', 'secretary', 'treasurer'), loanController.getGroupLoans);
+router.patch('/:id/sign', restrictTo('secretary', 'treasurer'), loanController.signLoan);
+router.patch('/:id/repay', restrictTo('admin', 'secretary', 'treasurer'), loanController.repayLoan);
 router.patch('/:id/status', restrictTo('admin', 'secretary'), loanController.updateLoanStatus);
 
 module.exports = router;

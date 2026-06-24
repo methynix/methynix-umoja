@@ -14,6 +14,7 @@ import { useMyLoans, useRequestLoan } from '../hooks/useLoan';
 import { useUserStats } from '../hooks/useUser';
 import toast from 'react-hot-toast';
 import Spinner from '../components/Spinner';
+import SignaturePad from '../components/SignaturePad';
 
 const LoansPage = () => {
   const { data: user, isLoading: uLoading } = useUserStats();
@@ -22,11 +23,15 @@ const LoansPage = () => {
   const { t } = useTranslation();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const [appSig, setAppSig] = useState('');
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
 
   const totalShares = user?.shares || 0;
   const maxBorrowingPower = totalShares * 3;
   const isSuper = user?.role === 'superadmin';
+  const loanThreshold = user?.groupId?.loanThreshold || 0;
+  const watchedAmount = Number(watch('amount')) || 0;
+  const needsOtherCollateral = loanThreshold > 0 && watchedAmount > loanThreshold;
 
   const totalActiveDebt = loans
     ?.filter(l => l.status === 'approved')
@@ -36,19 +41,23 @@ const LoansPage = () => {
     ?.filter(l => l.status === 'approved')
     .reduce((acc, curr) => acc + (curr.totalPaid || 0), 0) || 0;
 
+  const openLoanModal = () => { reset(); setAppSig(''); setIsModalOpen(true); };
+  const closeLoanModal = () => { reset(); setAppSig(''); setIsModalOpen(false); };
+
   const onSubmit = (data) => {
     const requestedAmount = Number(data.amount);
 
-    if (requestedAmount > maxBorrowingPower) {
-      return toast.error(`Kikomo chako ni TZS ${maxBorrowingPower.toLocaleString()}. Huwezi kukopa zaidi.`);
+    if (!needsOtherCollateral && requestedAmount > maxBorrowingPower) {
+      return toast.error(`Kikomo chako ni TZS ${maxBorrowingPower.toLocaleString()}. Huwezi kukopa zaidi (dhamana ni hisa).`);
+    }
+    if (!appSig) {
+      return toast.error(t('please_sign'));
     }
 
-    requestLoanMutation.mutate(data, {
-      onSuccess: () => {
-        setIsModalOpen(false);
-        reset();
-      }
-    });
+    requestLoanMutation.mutate(
+      { ...data, applicantSignature: appSig },
+      { onSuccess: () => closeLoanModal() }
+    );
   };
 
   if (uLoading || lLoading) return (
@@ -67,7 +76,7 @@ const LoansPage = () => {
   <p className="text-gray-500 dark:text-gray-300 text-sm font-medium mt-1">{t('loans_subtitle')}</p>
 </div>
 <button 
-  onClick={() => { reset(); setIsModalOpen(true); }}
+  onClick={openLoanModal}
   className={`bg-vicoba-forest hover:bg-emerald-900 text-white flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-base w-full md:w-auto justify-center transition-colors shadow-md shadow-vicoba-forest/10 active:scale-[0.99] ${isSuper ? 'hidden' : ''}`}
 >
   <FaPlus /> {t('request_new_loan')}
@@ -123,7 +132,7 @@ const LoansPage = () => {
       </thead>
       <tbody className="divide-y divide-gray-100">
         {loans && loans.length > 0 ? (
-          loans.map(loan => {
+          loans.slice(0, 10).map(loan => {
             const totalWithInterest = loan.amountRequested * 1.1;
             const returned = loan.totalPaid || 0;
             const remaining = Math.max(0, totalWithInterest - returned);
@@ -141,11 +150,12 @@ const LoansPage = () => {
                 </td>
                 <td className="p-4 text-right">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${
+                    loan.status === 'paid' ? 'bg-blue-50 text-blue-600 border-blue-100' :
                     loan.status === 'approved' ? 'bg-emerald-50 text-vicoba-forest border-emerald-100' :
                     loan.status === 'pending' ? 'bg-amber-50 text-vicoba-gold border-amber-100' :
                     'bg-red-50 text-vicoba-earth border-red-100'
                   }`}>
-                    {loan.status === 'approved' ? 'Kimekubaliwa' : loan.status === 'pending' ? 'Kinasubiri' : 'Kimekataliwa'}
+                    {loan.status === 'paid' ? t('loan_paid') : loan.status === 'approved' ? t('approved') : loan.status === 'pending' ? t('pending') : t('rejected')}
                   </span>
                 </td>
               </tr>
@@ -164,10 +174,10 @@ const LoansPage = () => {
 </div>
 
       {isModalOpen && (
-  <div className="fixed inset-0 z-[200] flex items-center justify-center bg-vicoba-dark/60 backdrop-blur-sm p-4">
-    <div className="bg-white dark:bg-gray-900 p-6 md:p-8 w-full max-w-md rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl relative">
+  <div className="fixed inset-0 z-[200] flex items-center justify-center bg-vicoba-dark/60 backdrop-blur-sm p-4 overflow-y-auto">
+    <div className="bg-white dark:bg-gray-900 p-6 md:p-8 w-full max-w-md rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl relative my-auto max-h-[92vh] overflow-y-auto">
       <button 
-        onClick={() => setIsModalOpen(false)}
+        onClick={closeLoanModal}
         className="absolute top-4 right-4 text-gray-400 dark:text-gray-500 hover:text-vicoba-dark dark:text-gray-100 transition-colors"
       >
         <FaXmark size={20} />
@@ -200,6 +210,33 @@ const LoansPage = () => {
           {errors.purpose && <span className="text-xs text-vicoba-earth font-bold mt-1 block">{errors.purpose.message}</span>}
         </div>
 
+        <div className="grid grid-cols-1 gap-4 border-t border-gray-100 dark:border-gray-800 pt-4">
+          <p className="text-xs font-bold text-vicoba-forest uppercase tracking-wide">{t('guarantor_internal')}</p>
+          <div className="grid grid-cols-2 gap-3">
+            <input {...register('guarantorInternalName', { required: t('required_field') })} placeholder={t('full_name')} className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 p-3 rounded-xl text-sm font-semibold text-vicoba-dark dark:text-gray-100 outline-none focus:border-vicoba-forest" />
+            <input {...register('guarantorInternalPhone', { required: t('required_field') })} placeholder={t('phone_number')} className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 p-3 rounded-xl text-sm font-semibold text-vicoba-dark dark:text-gray-100 outline-none focus:border-vicoba-forest" />
+          </div>
+
+          <p className="text-xs font-bold text-vicoba-forest uppercase tracking-wide">{t('guarantor_external')}</p>
+          <div className="grid grid-cols-2 gap-3">
+            <input {...register('guarantorExternalName', { required: t('required_field') })} placeholder={t('full_name')} className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 p-3 rounded-xl text-sm font-semibold text-vicoba-dark dark:text-gray-100 outline-none focus:border-vicoba-forest" />
+            <input {...register('guarantorExternalPhone', { required: t('required_field') })} placeholder={t('phone_number')} className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 p-3 rounded-xl text-sm font-semibold text-vicoba-dark dark:text-gray-100 outline-none focus:border-vicoba-forest" />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-vicoba-dark dark:text-gray-100 mb-1.5 block">{t('collateral')}</label>
+            {needsOtherCollateral ? (
+              <textarea {...register('collateralDescription', { required: t('required_field') })} placeholder={t('collateral_other_hint')} className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 p-3 rounded-xl text-sm font-medium text-vicoba-dark dark:text-gray-100 outline-none focus:border-vicoba-forest h-20 resize-none" />
+            ) : (
+              <div className="text-xs font-bold text-vicoba-forest bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/40 rounded-lg px-3 py-2.5">
+                {t('collateral_shares')}
+              </div>
+            )}
+          </div>
+
+          <SignaturePad value={appSig} onChange={setAppSig} label={t('applicant_sig')} />
+        </div>
+
         <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl text-center">
            <p className="text-xs text-vicoba-gold font-bold">{t('interest_note')}</p>
         </div>
@@ -207,7 +244,7 @@ const LoansPage = () => {
         <div className="flex gap-4 pt-2">
           <button 
             type="button" 
-            onClick={() => setIsModalOpen(false)}
+            onClick={closeLoanModal}
             className="flex-1 py-3 text-gray-500 dark:text-gray-300 font-bold text-sm transition-colors hover:text-vicoba-dark dark:text-gray-100"
           >
             Ghairi

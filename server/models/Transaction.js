@@ -6,12 +6,14 @@ const transactionSchema = new mongoose.Schema({
     groupCode: { type: String },
     type: {
         type: String,
-        enum: ['share', 'social_fund', 'loan_disbursement', 'loan_repayment', 'fine'],
+        enum: ['share', 'social_fund', 'mawazo', 'loan_disbursement', 'loan_repayment', 'fine'],
         required: true
     },
     amount: { type: Number, required: true },
+    quantity: { type: Number },
     // Used by the yearly ledger view.
     month: { type: Number, min: 1, max: 12 },
+    week: { type: Number, min: 1, max: 53 },
     year: { type: Number },
     status: { type: String, enum: ['pending', 'completed', 'failed'], default: 'completed' },
     recordedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } // Secretary au Admin

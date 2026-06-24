@@ -14,7 +14,7 @@ exports.register = asyncHandler(async (req, res, next) => {
 });
 
 exports.login = asyncHandler(async (req, res, next) => {
-    const { token, user } = await authService.login(req.body.phone, req.body.password);
+    const { token, user } = await authService.login(req.body.phone, req.body.password, req.body.groupCode);
     
     res.status(200).json({
         status: 'success',
@@ -42,7 +42,7 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
 
 
 exports.getMe = asyncHandler(async (req, res, next) => {
-    const user = await User.findById(req.user._id).populate('groupId', 'name groupCode image');
+    const user = await User.findById(req.user._id).populate('groupId', 'name groupCode image shareValue type socialFundAmount mawazoAmount loanThreshold');
 
     res.status(200).json({
         status: 'success',

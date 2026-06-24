@@ -13,17 +13,37 @@ exports.requestLoan = asyncHandler(async (req, res, next) => {
         return next(new AppError('Msimamizi Mkuu hawezi kuomba mkopo.', 403));
     }
 
-    const { amount, purpose } = req.body;
+    const { amount } = req.body;
 
     if (!amount || amount <= 0) {
         return next(new AppError('Tafadhali ingiza kiasi halali cha mkopo', 400));
     }
 
-    const loan = await loanService.requestLoan(req.user._id, amount, purpose);
-    
+    const loan = await loanService.requestLoan(req.user._id, req.body);
+
     res.status(201).json({
         status: 'success',
         message: 'Ombi la mkopo limetumwa kwa uongozi',
+        data: { loan }
+    });
+});
+
+exports.signLoan = asyncHandler(async (req, res, next) => {
+    const loan = await loanService.signLoan(req.params.id, req.user, req.body.signature);
+
+    res.status(200).json({
+        status: 'success',
+        message: 'Saini imehifadhiwa',
+        data: { loan }
+    });
+});
+
+exports.repayLoan = asyncHandler(async (req, res, next) => {
+    const loan = await loanService.repayLoan(req.params.id, req.user);
+
+    res.status(200).json({
+        status: 'success',
+        message: 'Mkopo umewekwa hali ya: paid',
         data: { loan }
     });
 });
@@ -73,10 +93,9 @@ exports.updateLoanStatus = asyncHandler(async (req, res, next) => {
     }
 
     const updatedLoan = await loanService.updateLoanStatus(
-        loanId, 
-        status, 
-        req.user._id, 
-        req.user.groupCode
+        loanId,
+        status,
+        req.user
     );
     
     res.status(200).json({

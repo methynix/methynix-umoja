@@ -12,6 +12,52 @@ export const useMyLoans = () => {
     });
 };
 
+export const useRepayLoan = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (loanId) => {
+            const { data } = await axiosInstance.patch(`/loans/${loanId}/repay`);
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['adminLoans'] });
+            queryClient.invalidateQueries({ queryKey: ['groupSummary'] });
+            toast.success('Mkopo umewekwa hali ya: Umelipwa!');
+        },
+        onError: (err) => {
+            toast.error(err.response?.data?.message || 'Imeshindikana');
+        }
+    });
+};
+
+export const useGroupSummary = () => {
+    return useQuery({
+        queryKey: ['groupSummary'],
+        queryFn: async () => {
+            const { data } = await axiosInstance.get('/groups/summary');
+            return data.data.summary;
+        },
+        retry: false,
+    });
+};
+
+export const useSignLoan = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ loanId, signature }) => {
+            const { data } = await axiosInstance.patch(`/loans/${loanId}/sign`, { signature });
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['adminLoans'] });
+            toast.success('Saini imehifadhiwa!');
+        },
+        onError: (err) => {
+            toast.error(err.response?.data?.message || 'Imeshindwa kusaini');
+        }
+    });
+};
+
 export const useRequestLoan = () => {
     const queryClient = useQueryClient();
     return useMutation({

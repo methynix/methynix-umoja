@@ -19,9 +19,13 @@ class UserRepository {
         return await User.create(userData);
     }
 
-  async updateStats(userId, shareAmount, socialAmount) {
+  async updateStats(userId, inc = {}) {
         return await User.findByIdAndUpdate(userId, {
-            $inc: { shares: shareAmount, socialFund: socialAmount }
+            $inc: {
+                shares: inc.shares || 0,
+                socialFund: inc.socialFund || 0,
+                mawazo: inc.mawazo || 0,
+            }
         }, { returnDocument: 'after' });
     }
 }

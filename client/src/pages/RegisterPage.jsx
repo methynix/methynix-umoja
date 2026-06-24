@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { FaUser, FaPhone, FaLock, FaUsers, FaArrowRight, FaCamera } from 'react-icons/fa6';
+import { FaUser, FaPhone, FaLock, FaUsers, FaArrowRight, FaCamera, FaPiggyBank } from 'react-icons/fa6';
 import axiosInstance from '../services/axiosInstance';
 import PasswordInput from '../components/PasswordInput';
 import Spinner from '../components/Spinner';
@@ -99,6 +99,22 @@ const RegisterPage = () => {
 
            <div className="space-y-4">
   <h3 className="text-vicoba-forest text-xs font-bold uppercase tracking-wider border-b border-gray-100 dark:border-gray-800 pb-1 mb-2">{t('group_info')}</h3>
+
+  <div>
+    <label className="block text-xs font-bold text-vicoba-dark dark:text-gray-100 mb-1">{t('group_type')}</label>
+    <div className="grid grid-cols-2 gap-3">
+      <label className={`cursor-pointer rounded-xl border p-3 text-center transition-all ${(watch('type') || 'vicoba') === 'vicoba' ? 'border-vicoba-forest bg-emerald-50 dark:bg-emerald-900/20' : 'border-gray-300 dark:border-gray-700'}`}>
+        <input type="radio" value="vicoba" defaultChecked {...register('type')} className="sr-only" />
+        <span className="block text-sm font-bold text-vicoba-dark dark:text-gray-100">{t('type_vicoba')}</span>
+        <span className="block text-[10px] text-gray-500 dark:text-gray-400 font-medium mt-0.5">{t('type_vicoba_desc')}</span>
+      </label>
+      <label className={`cursor-pointer rounded-xl border p-3 text-center transition-all ${watch('type') === 'chama' ? 'border-vicoba-forest bg-emerald-50 dark:bg-emerald-900/20' : 'border-gray-300 dark:border-gray-700'}`}>
+        <input type="radio" value="chama" {...register('type')} className="sr-only" />
+        <span className="block text-sm font-bold text-vicoba-dark dark:text-gray-100">{t('type_chama')}</span>
+        <span className="block text-[10px] text-gray-500 dark:text-gray-400 font-medium mt-0.5">{t('type_chama_desc')}</span>
+      </label>
+    </div>
+  </div>
   
   <div>
     <label className="block text-xs font-bold text-vicoba-dark dark:text-gray-100 mb-1">{t('group_name')}</label>
@@ -125,6 +141,23 @@ const RegisterPage = () => {
     </div>
     {errors.groupCode && <span className="text-xs text-vicoba-earth font-bold mt-1 block">{errors.groupCode.message}</span>}
   </div>
+
+  {(watch('type') || 'vicoba') !== 'chama' && (
+  <div>
+    <label className="block text-xs font-bold text-vicoba-dark dark:text-gray-100 mb-1">{t('share_value')}</label>
+    <div className="relative">
+      <FaPiggyBank className="absolute left-4 top-3.5 text-vicoba-forest" />
+      <input
+        type="number"
+        min="0"
+        {...register("shareValue", { required: "Thamani ya hisa inahitajika", min: { value: 1, message: "Lazima iwe zaidi ya 0" } })}
+        className={`w-full bg-gray-50 dark:bg-gray-950 border ${errors.shareValue ? 'border-vicoba-earth' : 'border-gray-300 dark:border-gray-700'} p-3 pl-12 rounded-xl focus:ring-2 focus:ring-vicoba-leaf focus:border-vicoba-forest outline-none text-vicoba-dark dark:text-gray-100 text-sm font-medium transition-all`}
+        placeholder="Mfano: 10000"
+      />
+    </div>
+    {errors.shareValue && <span className="text-xs text-vicoba-earth font-bold mt-1 block">{errors.shareValue.message}</span>}
+  </div>
+  )}
 
   <p className="text-xs text-gray-500 dark:text-gray-300 font-medium bg-vicoba-cream dark:bg-gray-950 p-2.5 rounded-lg border border-gray-100 dark:border-gray-800 leading-snug">
     💡 {t('group_code_note')}

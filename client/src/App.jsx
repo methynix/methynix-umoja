@@ -15,6 +15,7 @@ import LoanApprovalPage from './pages/LoanApprovalPage';
 import GroupManagementPage from './pages/GroupManagementPage';
 import GroupMembersPage from './pages/GroupMembersPage';
 import MaintenancePage from './pages/MaintenancePage';
+import GroupSettingsPage from './pages/GroupSettingsPage';
 import NotFound from './pages/NotFound';
 
 import MainLayout from './components/MainLayout';
@@ -62,6 +63,7 @@ const router = createBrowserRouter([
       { path: 'members', element: <MembersPage /> }, 
     { path: 'manage-loans', element: <LoanApprovalPage /> }, 
     { path: 'manage-groups', element: <GroupManagementPage /> }, 
+    {path:'settings',element:<GroupSettingsPage/>},
     { path: 'groups/:id/members', element: <GroupMembersPage /> }, 
     ],
   },

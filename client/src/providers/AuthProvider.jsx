@@ -30,9 +30,9 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
 }, []);
 
-    const login = async (phone, password) => {
+    const login = async (phone, password, groupCode) => {
     try {
-        const response = await axiosInstance.post('/auth/login', { phone, password });
+        const response = await axiosInstance.post('/auth/login', { phone, password, groupCode });
         
         console.log("Server Response:", response.data);
 

@@ -27,10 +27,10 @@ const SharesPage = () => {
  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
   <div>
     <h2 className="text-2xl md:text-3xl font-extrabold text-vicoba-dark dark:text-gray-100 tracking-tight">
-      {t('yearly_ledger')}
+      {t('weekly_ledger')}
     </h2>
     <p className="text-gray-500 dark:text-gray-300 text-sm font-medium mt-1">
-      {t('fiscal_year')}: {new Date().getFullYear()}
+      {t('last_12_weeks')}
     </p>
   </div>
   <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-3 rounded-xl flex items-center gap-3 shadow-sm shadow-vicoba-forest/5">
@@ -63,7 +63,7 @@ const SharesPage = () => {
 
       <div className="space-y-4">
         <h3 className="text-base font-bold text-vicoba-dark dark:text-gray-100 flex items-center gap-2">
-   <FaCalendarCheck className="text-vicoba-forest" /> {t('monthly_breakdown')}
+   <FaCalendarCheck className="text-vicoba-forest" /> {t('weekly_breakdown')}
 </h3>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -77,7 +77,7 @@ const SharesPage = () => {
   }`}
 >
   <div className="flex justify-between items-center mb-4">
-    <span className="text-sm font-bold text-vicoba-dark dark:text-gray-100">{item.month}</span>
+    <span className="text-sm font-bold text-vicoba-dark dark:text-gray-100">{item.label}</span>
     <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${
       item.status === 'Paid' ? 'border-emerald-200 text-vicoba-forest bg-emerald-50' : 
       item.status === 'Not Paid' ? 'border-red-200 text-vicoba-earth bg-red-50' : 
@@ -99,6 +99,13 @@ const SharesPage = () => {
       <span className="text-xs font-medium text-gray-400 dark:text-gray-500">{t('social_label')}:</span>
       <span className={`text-sm font-bold ${item.status === 'Not Paid' ? 'text-vicoba-earth' : 'text-vicoba-gold'}`}>
         {item.socialAmount > 0 ? `TZS ${item.socialAmount.toLocaleString()}` : '0 TZS'}
+      </span>
+    </div>
+
+    <div className="flex justify-between items-center border-t border-gray-100 dark:border-gray-800 pt-2">
+      <span className="text-xs font-medium text-gray-400 dark:text-gray-500">{t('mawazo_type')}:</span>
+      <span className={`text-sm font-bold ${item.status === 'Not Paid' ? 'text-vicoba-earth' : 'text-vicoba-dark dark:text-gray-100'}`}>
+        {item.mawazoAmount > 0 ? `TZS ${item.mawazoAmount.toLocaleString()}` : '0 TZS'}
       </span>
     </div>
   </div>

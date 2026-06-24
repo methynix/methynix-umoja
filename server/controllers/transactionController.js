@@ -13,26 +13,54 @@ exports.getMyHistory = asyncHandler(async (req, res, next) => {
 
 
 exports.getMyLedger = asyncHandler(async (req, res) => {
-    const currentYear = new Date().getFullYear();
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const WEEKS = 12;
+
+    const startOfWeek = (d) => {
+        const x = new Date(d);
+        const day = x.getDay() || 7;
+        x.setHours(0, 0, 0, 0);
+        x.setDate(x.getDate() - (day - 1));
+        return x;
+    };
+
+    const now = new Date();
+    const curStart = startOfWeek(now);
+    const spanStart = new Date(curStart);
+    spanStart.setDate(spanStart.getDate() - (WEEKS - 1) * 7);
 
     const transactions = await Transaction.find({
         member: req.user._id,
-        year: currentYear
+        type: { $in: ['share', 'social_fund', 'mawazo'] },
+        createdAt: { $gte: spanStart }
     });
 
-    const ledger = months.map((m, index) => {
-        const shareRec = transactions.find(t => t.month === (index + 1) && t.type === 'share');
+    const fmt = (d) => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
 
-        const socialRec = transactions.find(t => t.month === (index + 1) && t.type === 'social_fund');
+    const ledger = [];
+    for (let i = 0; i < WEEKS; i++) {
+        const wStart = new Date(curStart);
+        wStart.setDate(wStart.getDate() - i * 7);
+        const wEnd = new Date(wStart);
+        wEnd.setDate(wEnd.getDate() + 7);
 
-        return {
-            month: m,
-            shareAmount: shareRec ? shareRec.amount : 0,
-            socialAmount: socialRec ? socialRec.amount : 0,
-            status: shareRec ? 'Paid' : (index < new Date().getMonth() ? 'Not Paid' : 'Pending')
-        };
-    });
+        const inWin = transactions.filter((t) => t.createdAt >= wStart && t.createdAt < wEnd);
+        const sum = (type) => inWin.filter((t) => t.type === type).reduce((a, t) => a + t.amount, 0);
+
+        const shareAmount = sum('share');
+        const socialAmount = sum('social_fund');
+        const mawazoAmount = sum('mawazo');
+
+        const isCurrent = i === 0;
+        const complete = shareAmount > 0 && socialAmount > 0 && mawazoAmount > 0;
+
+        ledger.push({
+            label: `${fmt(wStart)} - ${fmt(new Date(wEnd.getTime() - 1))}`,
+            shareAmount,
+            socialAmount,
+            mawazoAmount,
+            status: complete ? 'Paid' : isCurrent ? 'Pending' : 'Not Paid'
+        });
+    }
 
     res.status(200).json({ status: 'success', data: { ledger } });
 });

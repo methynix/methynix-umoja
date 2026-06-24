@@ -12,13 +12,17 @@ const registerSchema = Joi.object({
     
     // ONGEZA HII HAPA CHINI
     groupName: Joi.string().required().messages({ 'any.required': 'Jina la kikundi ni lazima' }),
-    
-    role: Joi.string().valid('member', 'admin', 'secretary', 'superadmin').default('member')
+
+    type: Joi.string().valid('vicoba', 'chama').default('vicoba'),
+    shareValue: Joi.number().min(0).optional().allow('', null),
+
+    role: Joi.string().valid('member', 'admin', 'secretary', 'treasurer', 'superadmin').default('member')
 });
 
 const loginSchema = Joi.object({
     phone: Joi.string().required(),
-    password: Joi.string().required()
+    password: Joi.string().required(),
+    groupCode: Joi.string().allow('', null).optional()
 });
 
 const validate = (schema) => (req, res, next) => {

@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { useUserStats } from '../hooks/useUser';
 import { useMyTransactions } from '../hooks/useTransaction';
 import { useGlobalStats } from '../hooks/useStats';
+import { useGroupSummary } from '../hooks/useLoan';
 import { 
   FaUsers, 
   FaLayerGroup, 
@@ -13,7 +14,8 @@ import {
   FaClockRotateLeft,
   FaFileInvoiceDollar,
   FaPlus,
-  FaHandHoldingDollar
+  FaHandHoldingDollar,
+  FaGear
 } from 'react-icons/fa6';
 
 const Dashboard = () => {
@@ -24,8 +26,10 @@ const Dashboard = () => {
   const { data: transactions, isLoading: tLoading } = useMyTransactions();
   
   const isSuper = user?.role === 'superadmin';
-  const isAdmin = user?.role === 'admin' || user?.role === 'secretary';
+  const isAdmin = user?.role === 'admin' || user?.role === 'secretary' || user?.role === 'treasurer';
+  const isChairman = user?.role === 'admin';
   const { data: globalStats, isLoading: sLoading } = useGlobalStats(isSuper);
+  const { data: summary } = useGroupSummary();
 
   const handleMeetingClick = () => {
     toast('Coming Soon. Tunafanyia kazi kipengele hiki cha Kikao.', {
@@ -81,6 +85,33 @@ const Dashboard = () => {
         )}
       </div>
 
+      {!isSuper && summary && (
+        <div className="space-y-4">
+          <h3 className="text-xs font-bold text-vicoba-forest uppercase tracking-wider flex items-center gap-2 bg-vicoba-forest/5 py-1.5 px-3 rounded-md w-fit">
+            {t('group_summary')}
+          </h3>
+
+          {isAdmin && (
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+              <SummaryCard label={t('total_group_shares')} value={summary.totalShares} />
+              <SummaryCard label={t('total_group_social')} value={summary.totalSocialFund} />
+              <SummaryCard label={t('total_group_mawazo')} value={summary.totalMawazo} />
+              <SummaryCard label={t('borrowers_count')} value={summary.borrowers} money={false} />
+              <SummaryCard label={t('total_loaned')} value={summary.totalLoaned} />
+              <SummaryCard label={t('interest_profit')} value={summary.interestProfit} highlight />
+            </div>
+          )}
+
+          <div className="bg-gradient-to-br from-vicoba-forest to-emerald-900 text-white p-5 rounded-2xl shadow-md flex items-center justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wide text-emerald-100">{t('my_dividend')}</p>
+              <p className="text-[11px] text-emerald-200 font-medium mt-0.5">{t('dividend_hint')}</p>
+            </div>
+            <p className="text-2xl md:text-3xl font-extrabold">TZS {(summary.myDividend || 0).toLocaleString()}</p>
+          </div>
+        </div>
+      )}
+
       {(isAdmin || isSuper) && (
         <div className="space-y-4">
           <h3 className="text-xs font-bold text-vicoba-forest uppercase tracking-wider flex items-center gap-2 bg-vicoba-forest/5 py-1.5 px-3 rounded-md w-fit">
@@ -97,6 +128,9 @@ const Dashboard = () => {
               <>
                 <ConsoleBtn label={t('members')} icon={<FaUsers />} onClick={() => navigate('/dashboard/members')} />
                 <ConsoleBtn label={t('approvals')} icon={<FaFileInvoiceDollar />} onClick={() => navigate('/dashboard/manage-loans')} />
+                {isChairman && (
+                  <ConsoleBtn label={t('group_settings')} icon={<FaGear />} onClick={() => navigate('/dashboard/settings')} />
+                )}
                 <ConsoleBtn
                   label={t('session')}
                   icon={<FaPlus />}
@@ -134,8 +168,12 @@ const Dashboard = () => {
             <td className="p-4 text-xs text-gray-500 dark:text-gray-300 font-medium">{new Date(tx.createdAt).toLocaleDateString('en-GB')}</td>
             <td className="p-4 text-sm font-bold text-vicoba-forest">TZS {tx.amount?.toLocaleString()}</td>
             <td className="p-4 text-right">
-              <span className="px-2.5 py-1 bg-emerald-50 text-vicoba-forest rounded-full text-xs font-bold border border-emerald-100 inline-block">
-                {t('verified')}
+              <span className={`px-2.5 py-1 rounded-full text-xs font-bold border inline-block ${
+                tx.status === 'pending' ? 'bg-amber-50 text-vicoba-gold border-amber-100'
+                : tx.status === 'failed' ? 'bg-red-50 text-vicoba-earth border-red-100'
+                : 'bg-emerald-50 text-vicoba-forest border-emerald-100'
+              }`}>
+                {tx.status === 'pending' ? t('pending') : tx.status === 'failed' ? t('rejected') : t('verified')}
               </span>
             </td>
           </tr>
@@ -165,6 +203,15 @@ const ConsoleBtn = ({ label, icon, onClick}) => (
     <div className="text-vicoba-gold group-hover:text-vicoba-forest transition-colors mb-3 text-2xl">{icon}</div>
     <p className="text-vicoba-dark dark:text-gray-100 font-bold text-sm tracking-tight">{label}</p>
   </button>
+);
+
+const SummaryCard = ({ label, value, money = true, highlight = false }) => (
+  <div className={`p-4 rounded-2xl border shadow-sm ${highlight ? 'bg-amber-50 dark:bg-amber-900/15 border-amber-200 dark:border-amber-800/40' : 'bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800'}`}>
+    <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">{label}</p>
+    <p className={`text-lg md:text-xl font-extrabold mt-1 ${highlight ? 'text-vicoba-gold' : 'text-vicoba-dark dark:text-gray-100'}`}>
+      {money ? `TZS ${(value || 0).toLocaleString()}` : (value || 0)}
+    </p>
+  </div>
 );
 
 export default Dashboard;
