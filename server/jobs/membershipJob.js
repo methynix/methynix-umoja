@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Transaction = require('../models/Transaction');
 const Group = require('../models/Group');
 const { sendSMS } = require('../services/smsService');
+const sms = require('../services/smsTemplates');
 
 const startOfWeek = (d) => {
     const x = new Date(d);
@@ -53,10 +54,7 @@ const runMembershipCheck = async () => {
         if (defaultedAllThreeWeeks) {
             await User.findByIdAndDelete(m._id);
             if (m.phone) {
-                sendSMS(
-                    m.phone,
-                    `Habari ${m.name}, umeondolewa kwenye kikundi cha Methynix Umoja kwa kukosa kutoa michango (hisa, jamii na mawazo) kwa wiki tatu mfululizo.`
-                );
+                sendSMS(m.phone, sms.memberRemoved({ name: m.name }));
             }
             console.log(`[membership] Removed ${m.name} (${m._id}) for 3-week default`);
         }

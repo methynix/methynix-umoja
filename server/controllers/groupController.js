@@ -1,6 +1,7 @@
 const Group = require('../models/Group');
 const User = require('../models/User');
 const Loan = require('../models/Loan');
+const Transaction = require('../models/Transaction');
 const asyncHandler = require('../utils/asyncHandler');
 const AppError = require('../utils/AppError');
 
@@ -18,11 +19,18 @@ exports.getSummary = asyncHandler(async (req, res, next) => {
     }).select('member amountRequested interestRate');
 
     const totalLoaned = loans.reduce((a, l) => a + (l.amountRequested || 0), 0);
-    const interestProfit = loans.reduce(
+    const loanInterest = loans.reduce(
         (a, l) => a + (l.amountRequested || 0) * (l.interestRate || 0) / 100,
         0
     );
     const borrowers = new Set(loans.map((l) => String(l.member))).size;
+
+    const fineAgg = await Transaction.aggregate([
+        { $match: { groupCode, type: 'fine', status: 'completed' } },
+        { $group: { _id: null, total: { $sum: '$amount' } } }
+    ]);
+    const fineRevenue = fineAgg[0]?.total || 0;
+    const interestProfit = Math.round(loanInterest) + fineRevenue;
 
     const myShares = req.user.shares || 0;
     const myDividend = totalShares > 0 ? Math.round((myShares / totalShares) * interestProfit) : 0;
@@ -35,7 +43,7 @@ exports.getSummary = asyncHandler(async (req, res, next) => {
                 totalSocialFund,
                 totalMawazo,
                 totalLoaned,
-                interestProfit: Math.round(interestProfit),
+                interestProfit,
                 borrowers,
                 membersCount: members.length,
                 myShares,
@@ -70,7 +78,7 @@ exports.getGroupMembers = asyncHandler(async (req, res) => {
     });
 });
 exports.updateMyGroup = asyncHandler(async (req, res, next) => {
-    const { name, groupCode, shareValue, socialFundAmount, mawazoAmount, loanThreshold } = req.body;
+    const { name, groupCode, shareValue, socialFundAmount, mawazoAmount, loanThreshold, lateFineAmount, absentFineAmount } = req.body;
 
     const group = await Group.findById(req.user.groupId);
     if (!group) return next(new AppError('Kikundi hakijapatikana', 404));
@@ -87,6 +95,8 @@ exports.updateMyGroup = asyncHandler(async (req, res, next) => {
     if (socialFundAmount !== undefined && socialFundAmount !== '') group.socialFundAmount = Number(socialFundAmount);
     if (mawazoAmount !== undefined && mawazoAmount !== '') group.mawazoAmount = Number(mawazoAmount);
     if (loanThreshold !== undefined && loanThreshold !== '') group.loanThreshold = Number(loanThreshold);
+    if (lateFineAmount !== undefined && lateFineAmount !== '') group.lateFineAmount = Number(lateFineAmount);
+    if (absentFineAmount !== undefined && absentFineAmount !== '') group.absentFineAmount = Number(absentFineAmount);
 
     await group.save();
 

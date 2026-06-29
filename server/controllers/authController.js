@@ -1,7 +1,12 @@
 const authService = require('../services/authService');
 const asyncHandler = require('../utils/asyncHandler');
 const AppError = require('../utils/AppError');
-const User=require('../models/User');
+const User = require('../models/User');
+
+exports.requestOTP = asyncHandler(async (req, res) => {
+    const result = await authService.requestOTP(req.body.phone);
+    res.status(200).json({ status: 'success', message: result.message });
+});
 
 exports.register = asyncHandler(async (req, res, next) => {
     const { token, user } = await authService.register(req.body);

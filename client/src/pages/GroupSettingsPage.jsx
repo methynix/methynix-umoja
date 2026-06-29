@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { FaGear, FaUsers, FaPiggyBank } from 'react-icons/fa6';
+import { FaGear, FaUsers, FaPiggyBank, FaTriangleExclamation } from 'react-icons/fa6';
 import { FaHashtag } from 'react-icons/fa';
 import axiosInstance from '../services/axiosInstance';
 import { useUserStats } from '../hooks/useUser';
@@ -26,6 +26,8 @@ const GroupSettingsPage = () => {
         socialFundAmount: group.socialFundAmount,
         mawazoAmount: group.mawazoAmount,
         loanThreshold: group.loanThreshold,
+        lateFineAmount: group.lateFineAmount,
+        absentFineAmount: group.absentFineAmount,
       });
     }
   }, [group, reset]);
@@ -113,6 +115,30 @@ const GroupSettingsPage = () => {
             <input type="number" min="0" {...register('loanThreshold')} className={inputClass} placeholder="0" />
           </div>
           <span className="text-[11px] text-gray-400 dark:text-gray-500 font-medium block mt-1">{t('loan_threshold_hint')}</span>
+        </div>
+
+        <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+          <p className="text-xs font-extrabold text-vicoba-forest uppercase tracking-wider flex items-center gap-1.5 mb-4">
+            <FaTriangleExclamation size={12} /> Faini za Mkutano
+          </p>
+
+          <div className="space-y-4">
+            <div>
+              <label className={labelClass}>{t('late_fine_amount')}</label>
+              <div className="relative flex items-center">
+                <FaTriangleExclamation className="absolute left-4 text-gray-400 text-sm" />
+                <input type="number" min="0" {...register('lateFineAmount')} className={inputClass} placeholder="0" />
+              </div>
+            </div>
+
+            <div>
+              <label className={labelClass}>{t('absent_fine_amount')}</label>
+              <div className="relative flex items-center">
+                <FaTriangleExclamation className="absolute left-4 text-gray-400 text-sm" />
+                <input type="number" min="0" {...register('absentFineAmount')} className={inputClass} placeholder="0" />
+              </div>
+            </div>
+          </div>
         </div>
 
         <button

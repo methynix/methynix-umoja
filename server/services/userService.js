@@ -27,8 +27,8 @@ exports.registerMemberManually = async (creatorUser, memberData) => {
         groupCode = 'SYSTEM_GLOBAL';
     } else if (creatorUser.role === 'admin') {
         const requested = memberData.role || 'member';
-        // Admin can create member/secretary/admin, but NEVER a superadmin.
-        assignedRole = ['member', 'secretary', 'admin'].includes(requested)
+        // Admin can create member/secretary/treasurer — NEVER another admin or superadmin.
+        assignedRole = ['member', 'secretary', 'treasurer'].includes(requested)
             ? requested
             : 'member';
         groupId = creatorUser.groupId;

@@ -109,6 +109,30 @@ const en = {
   mawazo_type: 'Mawazo', current_week_note: 'Recording for the CURRENT week.',
   fixed_amount_note: 'Fixed amount set by the chairperson.', fixed_amount_unset: 'Amount not set. The chairperson must set it in Group Settings.',
   optional: 'optional', group_code_optional_hint: 'Your group code (optional)', group_code_login_note: 'Not required — speeds up sign-in only.',
+
+  late_fine_amount: 'Late Fine Amount (TZS)', absent_fine_amount: 'Absent Fine Amount (TZS)',
+  fine_amount: 'Fine Amount', fine_revenue: 'Fine Revenue',
+  loan_collateral_info: 'Collateral Info', collateral_threshold: 'Collateral Threshold',
+  collateral_shares_below: 'Shares collateral: loans below this amount', collateral_other_above: 'Other collateral required above this amount',
+  no_threshold_set: 'Secretary & Treasurer decide loan approval',
+
+  meetings: 'Meetings', start_meeting: 'Start Meeting', meeting_agenda: 'Meeting Agenda / Title',
+  meeting_date: 'Meeting Date', meeting_type: 'Meeting Type',
+  regular_meeting: 'Regular Meeting', contribution_meeting: 'Contribution Session',
+  attendance: 'Attendance', mark_attendance: 'Mark Attendance',
+  save_attendance: 'Save Attendance', saving_attendance: 'Saving...',
+  present: 'Present', absent_label: 'Absent', late_label: 'Late',
+  close_meeting: 'Close Meeting', meeting_closed: 'Meeting Closed', meeting_open: 'Open',
+  pay_fine: 'Mark Paid', my_fines: 'My Fines', no_fines: 'No outstanding fines',
+  back_to_meetings: 'Back to Meetings', no_meetings: 'No meetings yet',
+  fine_unpaid: 'Unpaid Fine', fine_paid_label: 'Fine Paid',
+  install_app: 'Install App', install_hint: 'Add to your home screen for offline access',
+  week_label: 'Week',
+
+  send_otp: 'Send OTP', sending_otp: 'Sending...', resend_otp: 'Resend OTP',
+  otp_sent_msg: 'OTP sent to your phone number. Enter it below.',
+  otp_code: 'Verification Code (OTP)', otp_placeholder: 'Enter 6-digit code',
+  otp_required: 'Please request and enter your OTP first',
 };
 
 const sw = {
@@ -219,6 +243,30 @@ const sw = {
   mawazo_type: 'Mawazo', current_week_note: 'Inarekodi kwa WIKI ya sasa.',
   fixed_amount_note: 'Kiasi kisichobadilika kilichowekwa na Mwenyekiti.', fixed_amount_unset: 'Kiasi hakijawekwa. Mwenyekiti akiweke kwenye Mipangilio ya Kikundi.',
   optional: 'si lazima', group_code_optional_hint: 'Code ya kikundi chako (si lazima)', group_code_login_note: 'Si lazima — inaharakisha tu kuingia.',
+
+  late_fine_amount: 'Faini ya Kuchelewa (TZS)', absent_fine_amount: 'Faini ya Kukosa (TZS)',
+  fine_amount: 'Kiasi cha Faini', fine_revenue: 'Mapato ya Faini',
+  loan_collateral_info: 'Taarifa ya Dhamana', collateral_threshold: 'Kikomo cha Dhamana',
+  collateral_shares_below: 'Dhamana ya hisa: mikopo chini ya kiasi hiki', collateral_other_above: 'Dhamana nyingine inahitajika zaidi ya kiasi hiki',
+  no_threshold_set: 'Katibu na Muweka Hazina wasimamizi wa idhini ya mkopo',
+
+  meetings: 'Mikutano', start_meeting: 'Anzisha Mkutano', meeting_agenda: 'Ajenda / Kichwa cha Mkutano',
+  meeting_date: 'Tarehe ya Mkutano', meeting_type: 'Aina ya Mkutano',
+  regular_meeting: 'Mkutano wa Kawaida', contribution_meeting: 'Mkutano wa Mchango',
+  attendance: 'Mahudhurio', mark_attendance: 'Weka Mahudhurio',
+  save_attendance: 'Hifadhi Mahudhurio', saving_attendance: 'Inahifadhi...',
+  present: 'Alikuwepo', absent_label: 'Hakuwepo', late_label: 'Alichelewa',
+  close_meeting: 'Funga Mkutano', meeting_closed: 'Imefungwa', meeting_open: 'Imewazi',
+  pay_fine: 'Weka Imelipwa', my_fines: 'Faini Zangu', no_fines: 'Huna faini zilizo wazi',
+  back_to_meetings: 'Rudi kwenye Mikutano', no_meetings: 'Hakuna mikutano bado',
+  fine_unpaid: 'Faini Hazijalipwa', fine_paid_label: 'Faini Imelipwa',
+  install_app: 'Sakinisha Programu', install_hint: 'Ongeza kwenye skrini yako ya nyumbani',
+  week_label: 'Wiki',
+
+  send_otp: 'Tuma OTP', sending_otp: 'Inatuma...', resend_otp: 'Tuma tena OTP',
+  otp_sent_msg: 'OTP imetumwa kwa namba yako ya simu. Iingize hapa chini.',
+  otp_code: 'Nambari ya Uthibitisho (OTP)', otp_placeholder: 'Ingiza tarakimu 6',
+  otp_required: 'Tafadhali omba na uweke OTP yako kwanza',
 };
 
 i18n

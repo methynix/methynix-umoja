@@ -8,6 +8,8 @@ const groupSchema = new mongoose.Schema({
     socialFundAmount: { type: Number, default: 0 },
     mawazoAmount: { type: Number, default: 0 },
     loanThreshold: { type: Number, default: 0 },
+    lateFineAmount: { type: Number, default: 0 },
+    absentFineAmount: { type: Number, default: 0 },
     image: { type: String, default: null }, // URL to image
     creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });

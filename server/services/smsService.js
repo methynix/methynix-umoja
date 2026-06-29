@@ -1,112 +1,43 @@
-const PROVIDER = (process.env.SMS_PROVIDER || 'nextsms').toLowerCase();
-
 const normalizePhone = (phone) => {
     let p = String(phone || '').replace(/\s+/g, '');
-    if (p.startsWith('+')) return p;
-    if (p.startsWith('0')) return '+255' + p.slice(1);
-    if (p.startsWith('255')) return '+' + p;
+    if (p.startsWith('+')) return p.slice(1);        // +255712345678 → 255712345678
+    if (p.startsWith('0')) return '255' + p.slice(1); //  0712345678   → 255712345678
     return p;
 };
 
-const sendViaNextSMS = async (to, message) => {
-    const auth =
-        process.env.NEXTSMS_AUTH ||
-        Buffer.from(`${process.env.NEXTSMS_USERNAME}:${process.env.NEXTSMS_PASSWORD}`).toString('base64');
-
-    const res = await fetch('https://messaging-service.co.tz/api/sms/v1/text/single', {
-        method: 'POST',
-        headers: {
-            Authorization: `Basic ${auth}`,
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-        },
-        body: JSON.stringify({
-            from: process.env.NEXTSMS_SENDER_ID || 'N-SMS',
-            to: to.map((p) => p.replace('+', '')),
-            text: message,
-        }),
-    });
-    return res.json();
-};
-
-const sendViaAfricasTalking = async (to, message) => {
-    const username = process.env.AT_USERNAME;
-    const apiKey = process.env.AT_API_KEY;
-    const base =
-        username === 'sandbox'
-            ? 'https://api.sandbox.africastalking.com/version1/messaging'
-            : 'https://api.africastalking.com/version1/messaging';
-
-    const body = new URLSearchParams({
-        username,
-        to: to.join(','),
-        message,
-    });
-    if (process.env.AT_SENDER_ID) body.append('from', process.env.AT_SENDER_ID);
-
-    const res = await fetch(base, {
-        method: 'POST',
-        headers: {
-            apiKey,
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Accept: 'application/json',
-        },
-        body,
-    });
-    return res.json();
-};
-
-const sendViaBeem = async (to, message) => {
-    const apiKey = process.env.BEEM_API_KEY;
-    const secretKey = process.env.BEEM_SECRET_KEY;
-    const token = Buffer.from(`${apiKey}:${secretKey}`).toString('base64');
-
-    const res = await fetch('https://apisms.beem.africa/v1/send', {
-        method: 'POST',
-        headers: {
-            Authorization: `Basic ${token}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            source_addr: process.env.BEEM_SENDER_ID || 'INFO',
-            encoding: 0,
-            message,
-            recipients: to.map((dest, i) => ({
-                recipient_id: i + 1,
-                dest_addr: dest.replace('+', ''),
-            })),
-        }),
-    });
-    return res.json();
-};
-
-const isConfigured = () => {
-    if (PROVIDER === 'nextsms')
-        return Boolean(process.env.NEXTSMS_AUTH || (process.env.NEXTSMS_USERNAME && process.env.NEXTSMS_PASSWORD));
-    if (PROVIDER === 'beem') return Boolean(process.env.BEEM_API_KEY && process.env.BEEM_SECRET_KEY);
-    return Boolean(process.env.AT_USERNAME && process.env.AT_API_KEY);
-};
-
-const dispatch = (to, message) => {
-    if (PROVIDER === 'nextsms') return sendViaNextSMS(to, message);
-    if (PROVIDER === 'beem') return sendViaBeem(to, message);
-    return sendViaAfricasTalking(to, message);
-};
-
 const sendSMS = async (phone, message) => {
-    const recipients = (Array.isArray(phone) ? phone : [phone]).map(normalizePhone);
+    const apiKey = process.env.MESEJI_API_KEY;
+    const senderId = process.env.MESEJI_SENDER_ID || 'METHYNIX';
 
-    if (!isConfigured()) {
-        console.log(`[SMS:${PROVIDER}] (not configured) -> ${recipients.join(', ')}: ${message}`);
+    const recipients = Array.isArray(phone) ? phone : [phone];
+    const contacts = recipients.map(normalizePhone).join(', ');
+
+    if (!apiKey) {
+        console.log(`[SMS:meseji] (not configured) -> ${contacts}: ${message}`);
         return { skipped: true };
     }
 
+    const body = { sender_id: senderId, message, contacts };
+    console.log('[SMS:meseji] REQUEST ->', JSON.stringify(body));
+
     try {
-        const result = await dispatch(recipients, message);
-        console.log(`[SMS:${PROVIDER}] sent -> ${recipients.join(', ')}`);
-        return result;
+        const res = await fetch('https://meseji.co.tz/api/v1/sms/send', {
+            method: 'POST',
+            headers: {
+                'x-api-key': apiKey,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify(body),
+        });
+
+        const statusCode = res.status;
+        let json;
+        try { json = await res.json(); } catch { json = { raw: await res.text() }; }
+        console.log('[SMS:meseji] RESPONSE ->', statusCode, JSON.stringify(json));
+        return json;
     } catch (err) {
-        console.error(`[SMS:${PROVIDER}] failed:`, err.message);
+        console.error('[SMS:meseji] failed:', err.message);
         return { error: err.message };
     }
 };

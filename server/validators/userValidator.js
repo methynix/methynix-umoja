@@ -15,8 +15,7 @@ const registerSchema = Joi.object({
 
     type: Joi.string().valid('vicoba', 'chama').default('vicoba'),
     shareValue: Joi.number().min(0).optional().allow('', null),
-
-    role: Joi.string().valid('member', 'admin', 'secretary', 'treasurer', 'superadmin').default('member')
+    otp: Joi.string().length(6).required().messages({ 'any.required': 'Nambari ya OTP inahitajika', 'string.length': 'OTP lazima iwe tarakimu 6' })
 });
 
 const loginSchema = Joi.object({

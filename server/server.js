@@ -24,6 +24,7 @@ app.use('/api/v1/transactions', protect,maintenanceGuard,require('./routes/trans
 app.use('/api/v1/stats', require('./routes/statsRoutes'));
 app.use('/api/v1/groups', require('./routes/groupRoutes'));
 app.use('/api/v1/settings', require('./routes/settingsRoutes'));
+app.use('/api/v1/meetings', protect, maintenanceGuard, require('./routes/meetingRoutes'));
 
 // app.all('*', (req, res, next) => {
 //     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

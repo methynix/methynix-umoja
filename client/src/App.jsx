@@ -16,6 +16,8 @@ import GroupManagementPage from './pages/GroupManagementPage';
 import GroupMembersPage from './pages/GroupMembersPage';
 import MaintenancePage from './pages/MaintenancePage';
 import GroupSettingsPage from './pages/GroupSettingsPage';
+import MeetingPage from './pages/MeetingPage';
+import MeetingDetailPage from './pages/MeetingDetailPage';
 import NotFound from './pages/NotFound';
 
 import MainLayout from './components/MainLayout';
@@ -64,7 +66,9 @@ const router = createBrowserRouter([
     { path: 'manage-loans', element: <LoanApprovalPage /> }, 
     { path: 'manage-groups', element: <GroupManagementPage /> }, 
     {path:'settings',element:<GroupSettingsPage/>},
-    { path: 'groups/:id/members', element: <GroupMembersPage /> }, 
+    { path: 'groups/:id/members', element: <GroupMembersPage /> },
+    { path: 'meetings', element: <MeetingPage /> },
+    { path: 'meetings/:id', element: <MeetingDetailPage /> },
     ],
   },
   {

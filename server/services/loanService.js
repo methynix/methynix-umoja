@@ -3,6 +3,7 @@ const userRepository = require('../repositories/userRepository');
 const User = require('../models/User');
 const Group = require('../models/Group');
 const { sendSMS } = require('./smsService');
+const sms = require('./smsTemplates');
 const AppError = require('../utils/AppError');
 
 exports.requestLoan = async (userId, payload) => {
@@ -35,16 +36,6 @@ exports.requestLoan = async (userId, payload) => {
 
     if (collateralType === 'other' && (!collateralDescription || !collateralDescription.trim())) {
         throw new AppError('Kiasi ni kikubwa kuliko kikomo; eleza dhamana nyingine utakayoweka.', 400);
-    }
-
-    if (collateralType === 'shares') {
-        const limit = user.shares * 3;
-        if (amount > limit) {
-            throw new AppError(
-                `Kikomo chako ni TZS ${limit.toLocaleString()} (mara 3 ya hisa zako TZS ${user.shares.toLocaleString()}).`,
-                400
-            );
-        }
     }
 
     return await loanRepository.create({
@@ -104,7 +95,7 @@ exports.repayLoan = async (loanId, actor) => {
 
     const member = await User.findById(loan.member).select('name phone');
     if (member?.phone) {
-        sendSMS(member.phone, `Habari ${member.name}, mkopo wako wa TZS ${loan.amountRequested.toLocaleString()} umekamilika kulipwa. Asante! - Methynix Umoja`);
+        sendSMS(member.phone, sms.loanRepaid({ name: member.name, amount: loan.amountRequested }));
     }
 
     return loan;
@@ -127,8 +118,7 @@ exports.updateLoanStatus = async (loanId, status, approver) => {
     }
 
     if (status === 'approved') {
-        const hasTreasurer = await User.exists({ groupCode: loan.groupCode, role: 'treasurer' });
-        if (hasTreasurer && !loan.treasurerSignature) {
+        if (!loan.treasurerSignature) {
             throw new AppError('Fomu lazima isainiwe na Muweka Hazina kabla ya kuidhinishwa.', 400);
         }
         if (!loan.secretarySignature) {
@@ -139,12 +129,8 @@ exports.updateLoanStatus = async (loanId, status, approver) => {
     const updated = await loanRepository.updateStatus(loanId, status, approver._id);
 
     if (member.phone) {
-        const amount = loan.amountRequested.toLocaleString();
-        const msg =
-            status === 'approved'
-                ? `Habari ${member.name}, mkopo wako wa TZS ${amount} UMEIDHINISHWA na Methynix Umoja.`
-                : `Habari ${member.name}, samahani, ombi lako la mkopo wa TZS ${amount} HALIKUKUBALIWA. Wasiliana na uongozi wa kikundi.`;
-        sendSMS(member.phone, msg);
+        const msgFn = status === 'approved' ? sms.loanApproved : sms.loanRejected;
+        sendSMS(member.phone, msgFn({ name: member.name, amount: loan.amountRequested }));
     }
 
     return updated;

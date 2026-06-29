@@ -2,6 +2,7 @@ const cron = require('node-cron');
 const User = require('../models/User');
 const Transaction = require('../models/Transaction');
 const { sendSMS } = require('../services/smsService');
+const sms = require('../services/smsTemplates');
 
 const runReminder = async (label) => {
     const now = new Date();
@@ -19,8 +20,8 @@ const runReminder = async (label) => {
         });
 
         if (!paid && member.phone) {
-            const msg = `Habari ${member.name}, Methynix Umoja inakukumbusha kulipa hisa za mwezi huu ili kuepuka faini. (${label})`;
-            await sendSMS(member.phone, msg);
+            const msgFn = label === 'Katikati ya mwezi' ? sms.shareReminderMidMonth : sms.shareReminderEndMonth;
+            await sendSMS(member.phone, msgFn({ name: member.name }));
         }
     }
 };

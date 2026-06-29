@@ -26,8 +26,6 @@ const LoansPage = () => {
   const [appSig, setAppSig] = useState('');
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
 
-  const totalShares = user?.shares || 0;
-  const maxBorrowingPower = totalShares * 3;
   const isSuper = user?.role === 'superadmin';
   const loanThreshold = user?.groupId?.loanThreshold || 0;
   const watchedAmount = Number(watch('amount')) || 0;
@@ -45,11 +43,6 @@ const LoansPage = () => {
   const closeLoanModal = () => { reset(); setAppSig(''); setIsModalOpen(false); };
 
   const onSubmit = (data) => {
-    const requestedAmount = Number(data.amount);
-
-    if (!needsOtherCollateral && requestedAmount > maxBorrowingPower) {
-      return toast.error(`Kikomo chako ni TZS ${maxBorrowingPower.toLocaleString()}. Huwezi kukopa zaidi (dhamana ni hisa).`);
-    }
     if (!appSig) {
       return toast.error(t('please_sign'));
     }
@@ -84,13 +77,20 @@ const LoansPage = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-  <div className="bg-white dark:bg-gray-900 p-6 border-l-4 border-vicoba-gold rounded-2xl border  shadow-md shadow-vicoba-forest/5 relative overflow-hidden">
+  <div className="bg-white dark:bg-gray-900 p-6 border-l-4 border-vicoba-gold rounded-2xl border shadow-md shadow-vicoba-forest/5 relative overflow-hidden">
     <div className="relative z-10">
       <div className="flex items-center gap-2 text-vicoba-gold mb-2">
         <FaCircleInfo size={14} />
-        <span className="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-300">{t('borrow_limit')}</span>
+        <span className="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-300">{t('loan_collateral_info')}</span>
       </div>
-      <h2 className="text-2xl md:text-3xl font-extrabold text-vicoba-dark dark:text-gray-100 tracking-tight">TZS {maxBorrowingPower.toLocaleString()}</h2>
+      {loanThreshold > 0 ? (
+        <div className="space-y-1">
+          <p className="text-sm font-bold text-vicoba-forest">Hadi TZS {loanThreshold.toLocaleString()} → Dhamana: Hisa</p>
+          <p className="text-sm font-bold text-vicoba-earth">Zaidi ya TZS {loanThreshold.toLocaleString()} → Dhamana nyingine inahitajika</p>
+        </div>
+      ) : (
+        <p className="text-sm font-semibold text-vicoba-dark dark:text-gray-100">{t('no_threshold_set')}</p>
+      )}
     </div>
     <FaHandHoldingDollar className="absolute -right-2 -bottom-2 text-gray-100/70 text-7xl pointer-events-none" />
   </div>
@@ -185,7 +185,11 @@ const LoansPage = () => {
 
       <div className="mb-6">
         <h3 className="text-xl font-bold text-vicoba-dark dark:text-gray-100 tracking-tight">{t('loan_request')}</h3>
-        <p className="text-xs font-semibold text-vicoba-forest bg-vicoba-forest/5 px-2 py-1 rounded mt-1.5 w-fit">Kikomo Chako: TZS {maxBorrowingPower.toLocaleString()}</p>
+        {loanThreshold > 0 && (
+          <p className="text-xs font-semibold text-vicoba-forest bg-vicoba-forest/5 px-2 py-1 rounded mt-1.5 w-fit">
+            Dhamana nyingine inahitajika mkopo zaidi ya TZS {loanThreshold.toLocaleString()}
+          </p>
+        )}
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">

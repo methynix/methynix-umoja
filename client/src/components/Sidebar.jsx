@@ -11,6 +11,7 @@ import {
   FaLayerGroup,
   FaCog,
   FaClipboardCheck,
+  FaCalendarAlt,
 } from 'react-icons/fa';
 import { useUserStats } from '../hooks/useUser';
 import { useAuth } from '../hooks/useAuth';
@@ -41,6 +42,7 @@ const Sidebar = () => {
           { path: '/dashboard/loans', icon: <FaMoneyBillWave />, label: t('loans') },
           isLeader && { path: '/dashboard/members', icon: <FaUsers />, label: t('members') },
           isLeader && { path: '/dashboard/manage-loans', icon: <FaClipboardCheck />, label: t('approvals') },
+          { path: '/dashboard/meetings', icon: <FaCalendarAlt />, label: t('meetings') },
           isAdmin && { path: '/dashboard/settings', icon: <FaCog />, label: t('group_settings') },
           { path: '/dashboard/profile', icon: <FaUser />, label: t('profile') },
         ]

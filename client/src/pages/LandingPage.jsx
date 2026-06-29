@@ -1,24 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaUsers, FaPiggyBank, FaMoneyBillWave } from 'react-icons/fa6';
+import { useTranslation } from 'react-i18next';
+import { FaUsers, FaPiggyBank, FaMoneyBillWave, FaMobileScreen } from 'react-icons/fa6';
 import heroBg from '/hero-vicoba.jpg';
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const [installPrompt, setInstallPrompt] = useState(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === 'accepted') setInstallPrompt(null);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-vicoba-dark dark:text-gray-100 selection:bg-vicoba-forest/10">
       <div className="relative min-h-[85vh] flex flex-col justify-center items-center text-center p-6 overflow-hidden">
-        
+
         <div className="absolute inset-0 z-0">
-          <img 
-            src={heroBg} 
-            alt="VICOBA Background" 
+          <img
+            src={heroBg}
+            alt="VICOBA Background"
             className="w-full h-full object-cover object-center"
           />
           <div className="absolute inset-0 bg-white/30 bg-gradient-to-b from-transparent via-white/20 to-gray-50"></div>
         </div>
-        
+
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-vicoba-forest/10 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-vicoba-gold/10 rounded-full blur-3xl"></div>
 
@@ -26,42 +45,56 @@ const LandingPage = () => {
           <span className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-full text-xs font-bold text-vicoba-forest uppercase tracking-wider shadow-sm">
             Mfumo wa Kidijitali wa Vikoba
           </span>
-          
+
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-vicoba-dark dark:text-gray-100 tracking-tight leading-none drop-shadow-sm">
             METHYNIX <span className="text-vicoba-forest">UMOJA VIKOBA</span>
           </h1>
-          
+
           <p className="text-base sm:text-lg md:text-xl text-vicoba-dark/80 max-w-2xl mx-auto font-semibold leading-relaxed">
             Rahisisha uendeshaji wa kikundi chenu. Weka akiba, fuatilia hisa, na uombe mikopo kwa uwazi, usalama na urahisi mkubwa kupitia simu au kompyuta.
           </p>
-          
-          <div className="pt-4">
-            <button 
-              onClick={() => navigate('/login')} 
+
+          <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={() => navigate('/login')}
               className="w-full sm:w-auto px-8 py-4 rounded-xl bg-vicoba-forest text-white hover:bg-emerald-950 font-bold text-base shadow-lg shadow-vicoba-forest/20 transition-all transform hover:-translate-y-0.5"
             >
               Anza Sasa hivi
             </button>
+
+            {installPrompt && (
+              <button
+                onClick={handleInstall}
+                className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white border-2 border-vicoba-forest text-vicoba-forest hover:bg-emerald-50 font-bold text-base shadow-md transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
+              >
+                <FaMobileScreen />
+                {t('install_app')}
+              </button>
+            )}
           </div>
+
+          {installPrompt && (
+            <p className="text-xs text-vicoba-dark/60 font-medium">{t('install_hint')}</p>
+          )}
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-16 md:py-24">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-          <FeatureCard 
-            icon={<FaPiggyBank />} 
-            title="Ufuatiliaji wa Hisa" 
-            desc="Fuatilia michango yako ya kila wiki, hisa ulizonunua, na mfuko wa jamii kwa uwazi na kwa wakati halisi (real-time)." 
+          <FeatureCard
+            icon={<FaPiggyBank />}
+            title="Ufuatiliaji wa Hisa"
+            desc="Fuatilia michango yako ya kila wiki, hisa ulizonunua, na mfuko wa jamii kwa uwazi na kwa wakati halisi (real-time)."
           />
-          <FeatureCard 
-            icon={<FaMoneyBillWave />} 
-            title="Mikopo ya Haraka" 
-            desc="Omba mkopo kwa urahisi kulingana na vigezo vya kikundi chenu, huku mfumo ukikokotoa riba kiotomatiki bila makosa." 
+          <FeatureCard
+            icon={<FaMoneyBillWave />}
+            title="Mikopo ya Haraka"
+            desc="Omba mkopo kwa urahisi kulingana na vigezo vya kikundi chenu, huku mfumo ukikokotoa riba kiotomatiki bila makosa."
           />
-          <FeatureCard 
-            icon={<FaUsers />} 
-            title="Uwazi Ndani ya Kikundi" 
-            desc="Kila muamala unaofanyika unarekodiwa na kuonekana kwa wanachama wote. Hakuna tena haja ya daftari za siri zilizofichwa." 
+          <FeatureCard
+            icon={<FaUsers />}
+            title="Uwazi Ndani ya Kikundi"
+            desc="Kila muamala unaofanyika unarekodiwa na kuonekana kwa wanachama wote. Hakuna tena haja ya daftari za siri zilizofichwa."
           />
         </div>
       </div>

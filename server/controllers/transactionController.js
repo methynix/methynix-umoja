@@ -23,6 +23,11 @@ exports.getMyLedger = asyncHandler(async (req, res) => {
         return x;
     };
 
+    const getWeekOfYear = (d) => {
+        const yearStart = new Date(d.getFullYear(), 0, 1);
+        return Math.floor((d - yearStart) / (7 * 24 * 60 * 60 * 1000)) + 1;
+    };
+
     const now = new Date();
     const curStart = startOfWeek(now);
     const spanStart = new Date(curStart);
@@ -55,6 +60,7 @@ exports.getMyLedger = asyncHandler(async (req, res) => {
 
         ledger.push({
             label: `${fmt(wStart)} - ${fmt(new Date(wEnd.getTime() - 1))}`,
+            weekNumber: getWeekOfYear(wStart),
             shareAmount,
             socialAmount,
             mawazoAmount,
