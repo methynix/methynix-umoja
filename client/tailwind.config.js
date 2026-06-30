@@ -17,6 +17,10 @@ export default {
           dark: '#2E302E',
         }
       },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        serif: ['Fraunces', 'Georgia', 'serif'],
+      },
     },
   },
   plugins: [],

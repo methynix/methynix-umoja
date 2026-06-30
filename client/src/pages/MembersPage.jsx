@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import {
   FaUserPlus, FaTrash, FaPiggyBank,
-  FaUser, FaPhone, FaXmark, FaLayerGroup
+  FaUser, FaPhone, FaEnvelope, FaXmark, FaLayerGroup
 } from 'react-icons/fa6';
 import { FaSearch, FaShieldAlt } from 'react-icons/fa';
 import { useMembers, useCreateMember, useDeleteMember } from '../hooks/useMembers';
@@ -32,7 +32,7 @@ const MembersPage = () => {
   // SEPARATE forms so one modal never carries the other's data,
   // and so reopening "Sajili" never shows the previous member's details.
   const registerForm = useForm({
-    defaultValues: { name: '', phone: '', role: 'member', shares: 0, socialFund: 0 },
+    defaultValues: { name: '', phone: '', email: '', role: 'member', shares: 0, socialFund: 0 },
   });
   const recordForm = useForm({ shouldUnregister: true, defaultValues: { month: '', type: 'share', amount: '', shares: '' } });
 
@@ -60,12 +60,12 @@ const MembersPage = () => {
 
   // Always start the register modal from a clean slate.
   const openRegisterModal = () => {
-    registerForm.reset({ name: '', phone: '', role: 'member', shares: 0, socialFund: 0 });
+    registerForm.reset({ name: '', phone: '', email: '', role: 'member', shares: 0, socialFund: 0 });
     setIsModalOpen(true);
   };
   const closeRegisterModal = () => {
     setIsModalOpen(false);
-    registerForm.reset({ name: '', phone: '', role: 'member', shares: 0, socialFund: 0 });
+    registerForm.reset({ name: '', phone: '', email: '', role: 'member', shares: 0, socialFund: 0 });
   };
 
   const openContributionModal = (member) => {
@@ -204,7 +204,14 @@ const MembersPage = () => {
                           {member.name.substring(0, 2).toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-vicoba-dark dark:text-gray-100 font-bold text-sm">{member.name}</p>
+                          <p className="text-vicoba-dark dark:text-gray-100 font-bold text-sm flex items-center gap-2">
+                            {member.name}
+                            {member.status === 'pending' && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold border border-amber-200 text-vicoba-gold bg-amber-50">
+                                {t('pending_verification')}
+                              </span>
+                            )}
+                          </p>
                           <p className="text-gray-400 dark:text-gray-500 text-xs font-medium">{member.phone}</p>
                         </div>
                       </div>
@@ -306,6 +313,21 @@ const MembersPage = () => {
                 )}
               </div>
 
+              <div>
+                <label className={labelClass}>
+                  {t('email_address')} <span className="text-gray-400 font-medium">({t('optional')})</span>
+                </label>
+                <div className="relative flex items-center">
+                  <FaEnvelope className="absolute left-4 text-gray-400 dark:text-gray-500 text-sm" />
+                  <input
+                    type="email"
+                    {...registerForm.register('email')}
+                    className={inputClass}
+                    placeholder="jina@email.com"
+                  />
+                </div>
+              </div>
+
               {isAdmin && (
                 <div>
                   <label className={labelClass}>{t('user_role')}</label>
@@ -340,7 +362,7 @@ const MembersPage = () => {
 
               <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-center">
                 <p className="text-xs text-vicoba-gold font-bold">
-                  {t('first_password_note')}
+                  {t('member_verification_note')}
                 </p>
               </div>
 

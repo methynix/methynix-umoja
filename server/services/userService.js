@@ -1,6 +1,10 @@
+const crypto = require('crypto');
 const userRepository = require('../repositories/userRepository');
 const AppError = require('../utils/AppError');
 const User = require('../models/User');
+const MemberVerificationToken = require('../models/MemberVerificationToken');
+const { sendSMS } = require('./smsService');
+const sms = require('./smsTemplates');
 
 /**
  * Register a user manually. The role that gets assigned depends ENTIRELY
@@ -41,20 +45,54 @@ exports.registerMemberManually = async (creatorUser, memberData) => {
         throw new AppError('Huna ruhusa ya kusajili watumiaji.', 403);
     }
 
-    // Default first password = name without spaces, lowercase (unless one is supplied).
-    const initialPassword =
-        memberData.password || memberData.name.toLowerCase().replace(/\s/g, '');
+    // Superadmin-to-superadmin is an internal, trusted bootstrap action — stays
+    // immediately active with a chosen/default password, same as before.
+    if (assignedRole === 'superadmin') {
+        const initialPassword =
+            memberData.password || memberData.name.toLowerCase().replace(/\s/g, '');
 
-    return await userRepository.create({
+        return await userRepository.create({
+            name: memberData.name,
+            phone: memberData.phone,
+            password: initialPassword,
+            role: assignedRole,
+            shares: 0,
+            socialFund: 0,
+            groupId,
+            groupCode,
+        });
+    }
+
+    // Ordinary members: identity isn't proven yet (whoever filled the form could
+    // have mistyped the phone, or it could belong to someone else entirely).
+    // Account starts 'pending' with a password nobody knows; the member must
+    // click the SMS link to confirm it's really their number and set their own password.
+    const placeholderPassword = crypto.randomBytes(24).toString('hex');
+
+    const newUser = await userRepository.create({
         name: memberData.name,
         phone: memberData.phone,
-        password: initialPassword,
+        email: memberData.email ? String(memberData.email).trim().toLowerCase() : undefined,
+        password: placeholderPassword,
         role: assignedRole,
-        shares: assignedRole === 'superadmin' ? 0 : Number(memberData.shares) || 0,
-        socialFund: assignedRole === 'superadmin' ? 0 : Number(memberData.socialFund) || 0,
+        status: 'pending',
+        shares: Number(memberData.shares) || 0,
+        socialFund: Number(memberData.socialFund) || 0,
         groupId,
         groupCode,
     });
+
+    const verifyToken = crypto.randomBytes(32).toString('hex');
+    await MemberVerificationToken.create({
+        userId: newUser._id,
+        token: verifyToken,
+        expiresAt: new Date(Date.now() + 72 * 60 * 60 * 1000), // 72 hours
+    });
+
+    const link = `${process.env.CLIENT_URL}/verify-member/${verifyToken}`;
+    sendSMS(newUser.phone, sms.memberVerification({ name: newUser.name, link }));
+
+    return newUser;
 };
 
 exports.getGroupMembers = async (requestingUser) => {

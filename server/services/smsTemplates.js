@@ -13,8 +13,8 @@ const otp = ({ code }) =>
 
 // ─── Member Management ────────────────────────────────────────────────────────
 
-const welcomeMember = ({ name, groupName, password }) =>
-    `Karibu ${name} kwenye kikundi cha ${groupName}! Umesajiliwa kwenye ${APP}. Nywila yako ya kwanza ni: ${password}. Badilisha mara unapoingia mara ya kwanza.`;
+const memberVerification = ({ name, link }) =>
+    `Karibu ${name} kwenye ${APP}! Bonyeza link hii kuthibitisha namba yako na kuweka password yako: ${link} (Halali kwa masaa 72)`;
 
 const memberRemoved = ({ name }) =>
     `Habari ${name}, umeondolewa kwenye kikundi cha ${APP} kwa kukosa kutoa michango (hisa, jamii na mawazo) kwa wiki tatu mfululizo. Wasiliana na uongozi kwa maelezo zaidi.`;
@@ -61,7 +61,7 @@ const fmt = (n) => Number(n).toLocaleString('en-TZ');
 
 module.exports = {
     otp,
-    welcomeMember,
+    memberVerification,
     memberRemoved,
     loanRequested,
     loanApproved,

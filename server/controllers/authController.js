@@ -46,6 +46,43 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
 });
 
 
+// ─── Password reset (via email) ──────────────────────────────────────────────
+
+exports.requestPasswordReset = asyncHandler(async (req, res) => {
+    const result = await authService.requestPasswordReset(req.body.phone, req.body.email);
+    res.status(200).json({ status: 'success', message: result.message });
+});
+
+exports.verifyPasswordResetOTP = asyncHandler(async (req, res) => {
+    const result = await authService.verifyPasswordResetOTP(req.body.phone, req.body.otp);
+    res.status(200).json({ status: 'success', data: result });
+});
+
+exports.confirmPasswordReset = asyncHandler(async (req, res) => {
+    const result = await authService.confirmPasswordReset(
+        req.body.resetToken,
+        req.body.newPassword,
+        req.body.confirmPassword
+    );
+    res.status(200).json({ status: 'success', message: result.message });
+});
+
+// ─── Manually-added member verification ──────────────────────────────────────
+
+exports.getMemberVerificationInfo = asyncHandler(async (req, res) => {
+    const result = await authService.getMemberVerificationInfo(req.params.token);
+    res.status(200).json({ status: 'success', data: result });
+});
+
+exports.approveMember = asyncHandler(async (req, res) => {
+    const { token, user } = await authService.approveMember(
+        req.params.token,
+        req.body.newPassword,
+        req.body.confirmPassword
+    );
+    res.status(200).json({ status: 'success', token, data: { user } });
+});
+
 exports.getMe = asyncHandler(async (req, res, next) => {
     const user = await User.findById(req.user._id).populate('groupId', 'name groupCode image shareValue type socialFundAmount mawazoAmount loanThreshold');
 

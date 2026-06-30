@@ -65,6 +65,12 @@ const LoginPage = () => {
             rules={{ required: 'Nywila inahitajika' }}
           />
 
+          <div className="text-right -mt-3">
+            <Link to="/forgot-password" className="text-sm text-vicoba-forest hover:text-vicoba-leaf font-bold underline transition-colors">
+              {t('forgot_password_link')}
+            </Link>
+          </div>
+
           <div>
             <label className="block text-sm font-bold text-vicoba-dark mb-2">
               {t('group_code_label')} <span className="text-gray-400 font-medium">({t('optional')})</span>

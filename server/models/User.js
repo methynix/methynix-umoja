@@ -4,8 +4,10 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
     name: { type: String, required: [true, 'Jina linahitajika'] },
     phone: { type: String, required: [true, 'Namba ya simu inahitajika'], unique: true },
+    email: { type: String, lowercase: true, trim: true, default: undefined, unique: true, sparse: true },
     password: { type: String, required: true, minlength: 6, select: false },
     role: { type: String, enum: ['superadmin','admin', 'secretary', 'treasurer', 'member'], default: 'member' },
+    status: { type: String, enum: ['pending', 'active'], default: 'active' },
      groupId: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Group' 

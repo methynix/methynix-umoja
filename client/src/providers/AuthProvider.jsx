@@ -57,11 +57,17 @@ export const AuthProvider = ({ children }) => {
         toast.success('Logged out safely');
     };
 
+    const setSession = (token, userData) => {
+        localStorage.setItem('token', token);
+        setUser(userData);
+    };
+
     const value = useMemo(() => ({
         user,
         loading,
         login,
         logout,
+        setSession,
         isAuthenticated: !!user
     }), [user, loading]);
 

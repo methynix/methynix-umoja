@@ -6,6 +6,11 @@ import { AuthProvider } from './providers/AuthProvider';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import VerifyMemberPage from './pages/VerifyMemberPage';
+import TermsPage from './pages/TermsPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import SupportUsPage from './pages/SupportUsPage';
 import Dashboard from './pages/Dashboard';
 import LoansPage from './pages/LoansPage';
 import SharesPage from './pages/SharesPage';
@@ -37,6 +42,17 @@ const router = createBrowserRouter([
     path: '/register',
     element: <RegisterPage />,
   },
+  {
+    path: '/forgot-password',
+    element: <ForgotPasswordPage />,
+  },
+  {
+    path: '/verify-member/:token',
+    element: <VerifyMemberPage />,
+  },
+  { path: '/terms', element: <TermsPage /> },
+  { path: '/privacy-policy', element: <PrivacyPolicyPage /> },
+  { path: '/support-us', element: <SupportUsPage /> },
   { path: '/maintenance', element: <MaintenancePage /> },
   {
     path: '/dashboard',

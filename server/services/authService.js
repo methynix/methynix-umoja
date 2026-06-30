@@ -5,8 +5,13 @@ const AppError = require('../utils/AppError');
 const Group = require('../models/Group');
 const Settings = require('../models/Settings');
 const PhoneOTP = require('../models/PhoneOTP');
+const PasswordResetOTP = require('../models/PasswordResetOTP');
+const MemberVerificationToken = require('../models/MemberVerificationToken');
+const User = require('../models/User');
 const { sendSMS } = require('./smsService');
+const { sendEmail } = require('./emailService');
 const sms = require('./smsTemplates');
+const emailTemplates = require('./emailTemplates');
 
 const signToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
@@ -122,4 +127,144 @@ exports.login = async (phone, password, groupCode) => {
 
     const token = signToken(user._id);
     return { token, user: safeUser(user) };
+};
+
+// ─── Password reset (via email — keeps SMS costs down) ───────────────────────
+
+const GENERIC_RESET_RESULT = { message: 'Kama taarifa ulizoweka ni sahihi, tumetuma OTP kwenye email yako.' };
+
+exports.requestPasswordReset = async (phone, email) => {
+    if (!phone || String(phone).trim().length !== 10) {
+        throw new AppError('Tafadhali weka namba ya simu sahihi (tarakimu 10).', 400);
+    }
+    if (!email || !String(email).trim()) {
+        throw new AppError('Tafadhali weka email yako.', 400);
+    }
+    const normalizedPhone = String(phone).trim();
+    const normalizedEmail = String(email).trim().toLowerCase();
+
+    const user = await userRepository.findByPhone(normalizedPhone);
+    if (!user) return GENERIC_RESET_RESULT; // don't leak whether this phone is registered
+
+    if (user.email) {
+        // Email already on file — it must match. Never send to an attacker-supplied address.
+        if (user.email !== normalizedEmail) return GENERIC_RESET_RESULT;
+    } else {
+        // First time this account sets an email (email is optional at registration).
+        const emailTaken = await User.findOne({ email: normalizedEmail });
+        if (emailTaken) return GENERIC_RESET_RESULT;
+        user.email = normalizedEmail;
+        await user.save({ validateBeforeSave: false });
+    }
+
+    const existing = await PasswordResetOTP.findOne({ phone: normalizedPhone });
+    if (existing && existing.attempts >= 3) {
+        throw new AppError('Umevuka kikomo cha OTP. Jaribu tena baada ya dakika 10.', 429);
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpHash = await bcrypt.hash(otp, 10);
+
+    await PasswordResetOTP.findOneAndUpdate(
+        { phone: normalizedPhone },
+        { otpHash, expiresAt: new Date(Date.now() + 10 * 60 * 1000), attempts: 0 },
+        { upsert: true, returnDocument: 'after' }
+    );
+
+    const { subject, html } = emailTemplates.passwordResetOTP({ name: user.name, code: otp });
+    await sendEmail(user.email, subject, html);
+
+    return GENERIC_RESET_RESULT;
+};
+
+exports.verifyPasswordResetOTP = async (phone, otp) => {
+    const normalizedPhone = String(phone || '').trim();
+    const record = await PasswordResetOTP.findOne({ phone: normalizedPhone });
+    if (!record) throw new AppError('Tafadhali omba OTP kwanza.', 400);
+    if (record.expiresAt < new Date()) throw new AppError('OTP imekwisha muda. Tafadhali omba tena.', 400);
+    if (record.attempts >= 5) throw new AppError('Majaribio mengi ya OTP. Omba OTP mpya.', 429);
+
+    const valid = await record.isValid(otp);
+    if (!valid) {
+        await PasswordResetOTP.findByIdAndUpdate(record._id, { $inc: { attempts: 1 } });
+        throw new AppError('OTP si sahihi. Jaribu tena.', 400);
+    }
+
+    await PasswordResetOTP.findByIdAndDelete(record._id);
+
+    const user = await userRepository.findByPhone(normalizedPhone);
+    if (!user) throw new AppError('Mtumiaji hajapatikana', 404);
+
+    const resetToken = jwt.sign(
+        { id: user._id, purpose: 'password_reset' },
+        process.env.JWT_SECRET,
+        { expiresIn: '10m' }
+    );
+    return { resetToken };
+};
+
+exports.confirmPasswordReset = async (resetToken, newPassword, confirmPassword) => {
+    if (!newPassword || newPassword.length < 6) {
+        throw new AppError('Password lazima iwe na herufi 6 au zaidi.', 400);
+    }
+    if (newPassword !== confirmPassword) {
+        throw new AppError('Password hazifanani.', 400);
+    }
+
+    let decoded;
+    try {
+        decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
+    } catch {
+        throw new AppError('Muda wa kuweka password mpya umeisha. Anza upya mchakato.', 401);
+    }
+    if (decoded.purpose !== 'password_reset') {
+        throw new AppError('Token batili.', 401);
+    }
+
+    const user = await User.findById(decoded.id);
+    if (!user) throw new AppError('Mtumiaji hajapatikana', 404);
+
+    user.password = newPassword;
+    await user.save();
+
+    return { message: 'Password imebadilishwa. Sasa unaweza kuingia.' };
+};
+
+// ─── Manually-added member verification (SMS link → set password) ───────────
+
+exports.getMemberVerificationInfo = async (token) => {
+    const record = await MemberVerificationToken.findOne({ token });
+    if (!record) throw new AppError('Link si sahihi au imekwisha muda.', 400);
+    if (record.expiresAt < new Date()) throw new AppError('Link imekwisha muda. Wasiliana na kiongozi wa kikundi chako.', 400);
+
+    const user = await User.findById(record.userId);
+    if (!user) throw new AppError('Mwanachama hajapatikana', 404);
+    if (user.status === 'active') throw new AppError('Akaunti hii tayari imethibitishwa. Tafadhali ingia (login).', 400);
+
+    return { name: user.name, phone: user.phone };
+};
+
+exports.approveMember = async (token, newPassword, confirmPassword) => {
+    if (!newPassword || newPassword.length < 6) {
+        throw new AppError('Password lazima iwe na herufi 6 au zaidi.', 400);
+    }
+    if (newPassword !== confirmPassword) {
+        throw new AppError('Password hazifanani.', 400);
+    }
+
+    const record = await MemberVerificationToken.findOne({ token });
+    if (!record) throw new AppError('Link si sahihi au imekwisha muda.', 400);
+    if (record.expiresAt < new Date()) throw new AppError('Link imekwisha muda. Wasiliana na kiongozi wa kikundi chako.', 400);
+
+    const user = await User.findById(record.userId);
+    if (!user) throw new AppError('Mwanachama hajapatikana', 404);
+
+    user.password = newPassword;
+    user.status = 'active';
+    await user.save();
+
+    await MemberVerificationToken.findByIdAndDelete(record._id);
+
+    const newToken = signToken(user._id);
+    return { token: newToken, user: safeUser(user) };
 };

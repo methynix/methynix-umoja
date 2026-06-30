@@ -24,6 +24,34 @@ const loginSchema = Joi.object({
     groupCode: Joi.string().allow('', null).optional()
 });
 
+const passwordResetRequestSchema = Joi.object({
+    phone: Joi.string().length(10).required().messages({ 'any.required': 'Namba ya simu inahitajika' }),
+    email: Joi.string().email().required().messages({
+        'any.required': 'Email inahitajika',
+        'string.email': 'Weka email sahihi',
+    }),
+});
+
+const passwordResetVerifySchema = Joi.object({
+    phone: Joi.string().length(10).required(),
+    otp: Joi.string().length(6).required().messages({ 'string.length': 'OTP lazima iwe tarakimu 6' }),
+});
+
+const passwordResetConfirmSchema = Joi.object({
+    resetToken: Joi.string().required(),
+    newPassword: Joi.string().min(6).required(),
+    confirmPassword: Joi.any().equal(Joi.ref('newPassword')).required().messages({
+        'any.only': 'Password hazifanani'
+    }),
+});
+
+const memberApproveSchema = Joi.object({
+    newPassword: Joi.string().min(6).required(),
+    confirmPassword: Joi.any().equal(Joi.ref('newPassword')).required().messages({
+        'any.only': 'Password hazifanani'
+    }),
+});
+
 const validate = (schema) => (req, res, next) => {
     const { error } = schema.validate(req.body);
     if (error) {
@@ -35,5 +63,9 @@ const validate = (schema) => (req, res, next) => {
 
 module.exports = {
     validateRegister: validate(registerSchema),
-    validateLogin: validate(loginSchema)
+    validateLogin: validate(loginSchema),
+    validatePasswordResetRequest: validate(passwordResetRequestSchema),
+    validatePasswordResetVerify: validate(passwordResetVerifySchema),
+    validatePasswordResetConfirm: validate(passwordResetConfirmSchema),
+    validateMemberApprove: validate(memberApproveSchema),
 };

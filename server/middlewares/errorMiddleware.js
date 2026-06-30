@@ -11,6 +11,7 @@ module.exports = (err, req, res, next) => {
         const field = Object.keys(err.keyValue || {})[0];
         const fieldMessages = {
             phone: 'Namba hii ya simu tayari imesajiliwa.',
+            email: 'Email hii tayari inatumika kwenye akaunti nyingine.',
             groupCode: 'Code hii ya kikundi tayari imetumika. Tafadhali chagua nyingine.',
         };
         return res.status(400).json({

@@ -2,7 +2,14 @@ const express = require('express');
 const authController = require('../controllers/authController');
 const router = express.Router();
 const { protect } = require('../middlewares/authMiddleware');
-const { validateRegister, validateLogin } = require('../validators/userValidator');
+const {
+    validateRegister,
+    validateLogin,
+    validatePasswordResetRequest,
+    validatePasswordResetVerify,
+    validatePasswordResetConfirm,
+    validateMemberApprove,
+} = require('../validators/userValidator');
 const rateLimit = require('express-rate-limit');
 
 const authLimiter = rateLimit({
@@ -26,5 +33,14 @@ router.post('/register', authLimiter, validateRegister, authController.register)
 router.post('/login', authLimiter, validateLogin, authController.login);
 router.get('/me', protect, authController.getMe);
 router.patch('/update-password', protect, authController.updatePassword);
+
+// Password reset via email
+router.post('/password-reset/request', otpLimiter, validatePasswordResetRequest, authController.requestPasswordReset);
+router.post('/password-reset/verify', otpLimiter, validatePasswordResetVerify, authController.verifyPasswordResetOTP);
+router.post('/password-reset/confirm', authLimiter, validatePasswordResetConfirm, authController.confirmPasswordReset);
+
+// Manually-added member verification (SMS link)
+router.get('/verify-member/:token', authController.getMemberVerificationInfo);
+router.post('/verify-member/:token/approve', authLimiter, validateMemberApprove, authController.approveMember);
 
 module.exports = router;
