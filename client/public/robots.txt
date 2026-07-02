@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /members
+Disallow: /loans
+Disallow: /contributions
+Disallow: /meetings
+Disallow: /fines
+Disallow: /settings
+Disallow: /profile
+Disallow: /reports
+
+Sitemap: https://methynix-vicoba.methynix.com/sitemap.xml
