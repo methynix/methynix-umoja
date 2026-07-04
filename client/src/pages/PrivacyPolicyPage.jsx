@@ -45,7 +45,7 @@ const CONTENT = {
         heading: '4. Usalama wa Taarifa',
         body: (
           <ul className="list-disc pl-5 space-y-1.5">
-            <li>Password zote zinahifadhiwa kwa njia ya usimbaji (hashing) — hakuna anayeweza kuziona kwa uwazi, hata sisi.</li>
+            <li>Password zote zinahifadhiwa kwa njia ya usimbaji (hashing). Hakuna anayeweza kuziona kwa uwazi, hata sisi.</li>
             <li>OTP zinahifadhiwa kwa muda mfupi tu na kufutwa baada ya kutumika au kuisha muda wake.</li>
             <li>Ufikiaji wa taarifa za kikundi umewekewa mipaka kulingana na nafasi yako (Mwanachama, Katibu, Muweka Hazina, Mwenyekiti).</li>
           </ul>
@@ -126,7 +126,7 @@ const CONTENT = {
         heading: '4. Data Security',
         body: (
           <ul className="list-disc pl-5 space-y-1.5">
-            <li>All passwords are stored using cryptographic hashing — nobody can see them in plain text, including us.</li>
+            <li>All passwords are stored using cryptographic hashing. Nobody can see them in plain text, including us.</li>
             <li>OTPs are stored only briefly and deleted after use or expiry.</li>
             <li>Access to group data is restricted based on your role (Member, Secretary, Treasurer, Chairperson).</li>
           </ul>

@@ -39,9 +39,13 @@ const LandingPage = () => {
     <div className="min-h-screen bg-vicoba-cream text-vicoba-dark">
       <header className="sticky top-0 z-30 bg-vicoba-cream border-b border-vicoba-dark/15">
         <div className="max-w-6xl mx-auto px-5 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span className="font-serif text-lg font-medium tracking-tight text-vicoba-dark">
+        <div className="flex items-center space-x-4 ">
+          <img src="/VICOBA.png" className="h-9 w-11 "/>
+           <span className="font-serif text-lg font-medium tracking-tight text-vicoba-dark">
             Methynix <span className="italic text-vicoba-forest">Umoja</span>
           </span>
+        </div>
+         
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5">
             <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-xs sm:text-[13px] font-semibold uppercase tracking-wide">
               <Link to="/support-us" className="text-vicoba-forest hover:text-vicoba-gold transition-colors">{t('nav_support')}</Link>

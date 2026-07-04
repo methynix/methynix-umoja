@@ -217,7 +217,7 @@ const RegisterPage = () => {
 
           {!otpSent && (
             <p className="text-xs text-amber-700 dark:text-amber-400 font-medium bg-amber-50 dark:bg-amber-900/20 p-3 rounded-xl border border-amber-200 dark:border-amber-800">
-              📱 Lazima uthibitishe namba yako ya simu kwanza — bonyeza <strong>{t('send_otp')}</strong> karibu na namba yako.
+              📱 Lazima uthibitishe namba yako ya simu kwanza. Bonyeza <strong>{t('send_otp')}</strong> karibu na namba yako.
             </p>
           )}
 

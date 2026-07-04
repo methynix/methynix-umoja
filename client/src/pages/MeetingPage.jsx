@@ -112,7 +112,7 @@ const MeetingPage = () => {
                 <input
                   {...register('title', { required: 'Ajenda ya mkutano inahitajika' })}
                   className={inputClass}
-                  placeholder="Mfano: Mkutano wa kila mwezi - Januari"
+                  placeholder="Mfano: Mkutano wa kila mwezi, Januari"
                 />
                 {errors.title && <span className="text-xs text-vicoba-earth font-bold block mt-1">{errors.title.message}</span>}
               </div>

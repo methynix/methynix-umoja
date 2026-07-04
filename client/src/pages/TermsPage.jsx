@@ -34,7 +34,7 @@ const CONTENT = {
         body: (
           <ul className="list-disc pl-5 space-y-1.5">
             <li>Kuweka taarifa sahihi wakati wa kujisajili na kuzisasisha pale zinapobadilika.</li>
-            <li>Kutunza siri namba yako ya simu, password, na OTP — usimpe mtu mwingine.</li>
+            <li>Kutunza siri namba yako ya simu, password, na OTP. Usimpe mtu mwingine.</li>
             <li>
               Viongozi wa kikundi wanawajibika kuhakikisha taarifa wanazoziingiza kwenye mfumo
               (michango, mikopo, malipo) ni sahihi na zinaendana na fedha halisi.
@@ -118,7 +118,7 @@ const CONTENT = {
         body: (
           <ul className="list-disc pl-5 space-y-1.5">
             <li>Provide accurate information when registering and update it when it changes.</li>
-            <li>Keep your phone number, password, and OTP confidential — do not share them with anyone.</li>
+            <li>Keep your phone number, password, and OTP confidential. Do not share them with anyone.</li>
             <li>
               Group leaders are responsible for ensuring that information entered into the system
               (contributions, loans, payments) is accurate and matches actual funds received or
