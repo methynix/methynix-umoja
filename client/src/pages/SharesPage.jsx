@@ -154,7 +154,7 @@ const SharesPage = () => {
 
       <div className="p-5 text-center">
         <p className="text-xs text-gray-400 dark:text-gray-500 font-semibold">
-          Msimu wa {new Date().getFullYear()} • Methynix Umoja Digital Ledger built by Methynix Software
+          Msimu wa {new Date().getFullYear()} • Methynix Vicoba Digital Ledger built by Methynix Software
         </p>
       </div>
     </div>

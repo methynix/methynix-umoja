@@ -12,7 +12,7 @@ const CONTENT = {
         heading: '1. Utangulizi',
         body: (
           <p>
-            Karibu kwenye Methynix Umoja. Masharti haya ya Matumizi yanaelezea sheria na masharti
+            Karibu kwenye Methynix Vicoba. Masharti haya ya Matumizi yanaelezea sheria na masharti
             yanayosimamia matumizi yako ya mfumo huu wa kidijitali wa kusimamia VICOBA na vikundi
             vya kuweka na kukopa. Kwa kutumia mfumo huu, unakubali kufungwa na masharti haya.
           </p>
@@ -22,7 +22,7 @@ const CONTENT = {
         heading: '2. Mfumo ni Chombo cha Kusaidia Uendeshaji, Si Taasisi ya Fedha',
         body: (
           <p>
-            Methynix Umoja ni mfumo wa kurekodi na kufuatilia shughuli za kikundi chako (hisa,
+            Methynix Vicoba ni mfumo wa kurekodi na kufuatilia shughuli za kikundi chako (hisa,
             michango, mikopo na malipo) ili kuongeza uwazi na urahisi wa uendeshaji. Mfumo HAUSHIKI,
             HAUTUNZI wala HAUSIMAMII fedha halisi za kikundi. Fedha zote zinabaki mikononi mwa
             uongozi wa kikundi chako kwa mujibu wa katiba na taratibu zenu wenyewe.
@@ -95,7 +95,7 @@ const CONTENT = {
         heading: '1. Introduction',
         body: (
           <p>
-            Welcome to Methynix Umoja. These Terms of Service describe the rules and conditions
+            Welcome to Methynix Vicoba. These Terms of Service describe the rules and conditions
             governing your use of this digital management system for VICOBA and savings groups. By
             using this system, you agree to be bound by these terms.
           </p>
@@ -105,7 +105,7 @@ const CONTENT = {
         heading: '2. The System is a Management Tool, Not a Financial Institution',
         body: (
           <p>
-            Methynix Umoja is a system for recording and tracking your group's transactions (shares,
+            Methynix Vicoba is a system for recording and tracking your group's transactions (shares,
             contributions, loans, and repayments) to improve transparency and ease of management.
             The system does NOT hold, store, or control the group's actual funds. All money remains
             in the hands of your group's leadership in accordance with your own constitution and

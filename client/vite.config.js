@@ -6,8 +6,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'Methynix Umoja VICOBA',
-        short_name: 'Umoja',
+        name: 'Methynix Vicoba',
+        short_name: 'Vicoba',
         description: 'Mfumo wa kisasa wa kusimamia vikundi vya VICOBA na Chama',
         display: 'standalone',
         orientation: 'portrait',

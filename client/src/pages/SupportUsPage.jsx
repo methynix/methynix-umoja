@@ -18,7 +18,7 @@ const CONTENT = {
     cards: [
       { icon: <FaComments />, title: 'Tupe Maoni', desc: 'Tuambie kinachofanya kazi na kinachohitaji kuboreshwa.' },
       { icon: <FaBug />, title: 'Ripoti Hitilafu', desc: 'Ukikuta tatizo lolote, tujulishe haraka iwezekanavyo.' },
-      { icon: <FaShareNodes />, title: 'Washirikishe Wengine', desc: 'Mwambie kiongozi wa kikundi kingine kuhusu Methynix Umoja.' },
+      { icon: <FaShareNodes />, title: 'Washirikishe Wengine', desc: 'Mwambie kiongozi wa kikundi kingine kuhusu Methynix Vicoba.' },
     ],
     thanks: 'Asante kwa kuwa sehemu ya safari hii.',
   },
@@ -35,7 +35,7 @@ const CONTENT = {
     cards: [
       { icon: <FaComments />, title: 'Give Feedback', desc: 'Tell us what is working and what needs to be improved.' },
       { icon: <FaBug />, title: 'Report a Bug', desc: 'If you find any problem, let us know as quickly as possible.' },
-      { icon: <FaShareNodes />, title: 'Spread the Word', desc: 'Tell another group leader about Methynix Umoja.' },
+      { icon: <FaShareNodes />, title: 'Spread the Word', desc: 'Tell another group leader about Methynix Vicoba.' },
     ],
     thanks: 'Thank you for being part of this journey.',
   },

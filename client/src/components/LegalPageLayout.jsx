@@ -20,7 +20,7 @@ const LegalPageLayout = ({ icon, title, subtitle, children }) => {
             className="inline-flex items-center gap-2 text-sm font-bold text-vicoba-forest hover:text-vicoba-leaf transition-colors"
           >
             <FaArrowLeft size={12} />
-            <span className="font-serif italic">Methynix Umoja</span>
+            <span className="font-serif italic">Methynix Vicoba</span>
           </Link>
           <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide">
             <button

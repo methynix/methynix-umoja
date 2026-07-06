@@ -42,7 +42,7 @@ const LandingPage = () => {
         <div className="flex items-center space-x-4 ">
           <img src="/VICOBA.png" className="h-9 w-11 "/>
            <span className="font-serif text-lg font-medium tracking-tight text-vicoba-dark">
-            Methynix <span className="italic text-vicoba-forest">Umoja</span>
+            Methynix <span className="italic text-vicoba-forest">Vicoba</span>
           </span>
         </div>
          
@@ -81,7 +81,7 @@ const LandingPage = () => {
           </div>
 
           <h1 className="font-serif text-5xl sm:text-6xl lg:text-[4.5rem] leading-[0.98] text-vicoba-dark mb-7">
-            Methynix<br /><span className="italic text-vicoba-forest">Umoja</span> Vikoba
+            Methynix<br /><span className="italic text-vicoba-forest">Vicoba</span>
           </h1>
 
           <p className="text-base sm:text-lg text-vicoba-dark/70 max-w-lg leading-relaxed font-medium mb-10">

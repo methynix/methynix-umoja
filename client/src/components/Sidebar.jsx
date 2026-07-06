@@ -59,7 +59,7 @@ const Sidebar = () => {
       <aside className="hidden md:flex w-64 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex-col h-screen sticky top-0 z-50 shadow-sm shadow-vicoba-forest/5">
         <div className="p-6 pt-8">
           <h2 className="text-xl font-extrabold text-vicoba-dark dark:text-gray-100 tracking-tight">
-            METHYNIX <span className="text-vicoba-forest dark:text-vicoba-leaf block text-xs font-bold uppercase tracking-widest mt-0.5">Umoja Vikoba</span>
+            METHYNIX <span className="text-vicoba-forest dark:text-vicoba-leaf block text-xs font-bold uppercase tracking-widest mt-0.5">Vicoba</span>
           </h2>
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-2">by Methynix Software</p>
         </div>
