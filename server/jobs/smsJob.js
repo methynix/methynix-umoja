@@ -9,20 +9,34 @@ const runReminder = async (label) => {
     const month = now.getMonth() + 1;
     const year = now.getFullYear();
 
-    const members = await User.find({ role: { $in: ['member', 'secretary', 'admin'] } }).select('name phone');
+    const members = await User.find({ 
+        role: { $in: ['member', 'secretary', 'admin'] },
+        phone: { $exists: true, $ne: '' }
+    }).select('name phone');
 
-    for (const member of members) {
-        const paid = await Transaction.findOne({
-            member: member._id,
-            type: 'share',
-            month,
-            year,
+    
+    if (members.length === 0) return;
+
+    const transactions = await Transaction.find({
+        type: 'share',
+        month,
+        year
+    }).select('member');
+
+    const paidMemberIds = new Set(transactions.map(t => t.member.toString()));
+
+    const msgFn = label === 'Katikati ya mwezi' ? sms.shareReminderMidMonth : sms.shareReminderEndMonth;
+
+    const smsPromises = members
+        .filter(member => !paidMemberIds.has(member._id.toString()))
+        .map(member => {
+            const message = msgFn({ name: member.name });
+            return sendSMS(member.phone, message);
         });
 
-        if (!paid && member.phone) {
-            const msgFn = label === 'Katikati ya mwezi' ? sms.shareReminderMidMonth : sms.shareReminderEndMonth;
-            await sendSMS(member.phone, msgFn({ name: member.name }));
-        }
+    if (smsPromises.length > 0) {
+        console.log(`[Cron:Reminder] Inatuma SMS ${smsPromises.length} kwa wasiolipa...`);
+        await Promise.all(smsPromises);
     }
 };
 

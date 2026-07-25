@@ -15,7 +15,7 @@ const LegalPageLayout = ({ icon, title, subtitle, children }) => {
     <div className="min-h-screen bg-vicoba-cream text-vicoba-dark">
       <header className="sticky top-0 z-30 bg-vicoba-cream border-b border-vicoba-dark/15">
         <div className="max-w-3xl mx-auto px-5 sm:px-6 py-3.5 flex items-center justify-between">
-          <Link
+          <Link 
             to="/"
             className="inline-flex items-center gap-2 text-sm font-bold text-vicoba-forest hover:text-vicoba-leaf transition-colors"
           >

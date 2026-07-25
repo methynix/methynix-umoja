@@ -18,9 +18,10 @@ const SignaturePad = ({ value, onChange, label }) => {
       const img = new Image();
       img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       img.src = value;
-      setHasInk(true);
+      // No setState here: hasInk is already seeded from `value` via useState,
+      // so setting it again inside the effect would just cause an extra render.
     }
-  }, []);
+  }, [value]);
 
   const pos = (e) => {
     const canvas = canvasRef.current;

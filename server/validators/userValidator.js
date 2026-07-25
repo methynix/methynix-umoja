@@ -10,7 +10,6 @@ const registerSchema = Joi.object({
     }),
     groupCode: Joi.string().required().messages({ 'any.required': 'Code ya kikundi ni lazima' }),
     
-    // ONGEZA HII HAPA CHINI
     groupName: Joi.string().required().messages({ 'any.required': 'Jina la kikundi ni lazima' }),
 
     type: Joi.string().valid('vicoba', 'chama').default('vicoba'),

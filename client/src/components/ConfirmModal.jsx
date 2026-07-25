@@ -15,7 +15,7 @@ const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel, isLoading }
           <button 
             onClick={onCancel} 
             disabled={isLoading}
-            className="px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:bg-gray-950 font-bold text-sm transition-colors disabled:opacity-50"
+            className="px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 bg-white hover:bg-gray-50 dark:bg-gray-950 font-bold text-sm transition-colors disabled:opacity-50"
           >
             Ghairi
           </button>

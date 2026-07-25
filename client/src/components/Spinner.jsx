@@ -1,9 +1,6 @@
 import React from 'react';
 
-/**
- * Small inline spinner for buttons / loading states.
- * Inherits the current text color so it works on any button.
- */
+
 const Spinner = ({ size = 16, className = '' }) => (
   <svg
     className={`animate-spin ${className}`}

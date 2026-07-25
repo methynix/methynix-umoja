@@ -8,7 +8,6 @@ const MainLayout = () => {
       <Sidebar />
       
       <main className="flex-1 p-4 md:p-10 pb-24 md:pb-10 relative overflow-x-hidden">
-        {/* Ambient background glows for professional tech touch */}
         <div className="fixed top-0 right-0 w-72 h-72 bg-vicoba-forest/[0.03] rounded-full blur-[120px] -z-10" />
         <div className="fixed bottom-0 left-64 w-72 h-72 bg-vicoba-gold/[0.03] rounded-full blur-[120px] -z-10" />
         

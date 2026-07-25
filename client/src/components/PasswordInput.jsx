@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
 import { FaEye, FaEyeSlash, FaLock } from 'react-icons/fa6';
 
-/**
- * Password field with a built-in show/hide toggle.
- * Works with react-hook-form. Pass custom `rules` for things like
- * "passwords must match".
- */
 const PasswordInput = ({
   register,
   name,

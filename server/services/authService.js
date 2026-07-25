@@ -68,8 +68,10 @@ exports.register = async (userData) => {
     // OTP is valid — delete it immediately
     await PhoneOTP.findByIdAndDelete(otpRecord._id);
 
-    const existingUser = await userRepository.findByPhone(phone);
-    if (existingUser) throw new AppError('Namba hii tayari imesajiliwa', 400);
+    // NOTE: we intentionally do NOT reject an already-registered phone here.
+    // This flow creates a brand-new group, and one person is allowed to run/join
+    // several different groups with the same phone. Uniqueness is enforced
+    // per-group by the compound index on the User model.
 
     if (!rest.groupCode || !rest.groupCode.trim()) {
         throw new AppError('Tafadhali weka Code ya kikundi', 400);
@@ -108,16 +110,37 @@ exports.register = async (userData) => {
 };
 
 exports.login = async (phone, password, groupCode) => {
-    const user = await userRepository.findByPhone(phone);
+    const normalizedPhone = String(phone || '').trim();
+    const code = groupCode ? String(groupCode).trim() : '';
 
-    if (!user || !(await user.correctPassword(password, user.password))) {
+    // The same phone may now exist in several groups, so find every membership
+    // and pick the right one using the group code the user typed.
+    const candidates = await User.find({ phone: normalizedPhone }).select('+password');
+    if (candidates.length === 0) {
         throw new AppError('Namba ya simu au Password si sahihi', 401);
     }
 
-    if (groupCode && groupCode.trim() && user.role !== 'superadmin') {
-        if (user.groupCode !== groupCode.trim()) {
+    let user;
+    if (candidates.length === 1) {
+        user = candidates[0];
+    } else {
+        // Multiple memberships share this phone — the group code disambiguates.
+        if (!code) {
+            throw new AppError('Namba hii ipo kwenye vikundi zaidi ya kimoja. Tafadhali weka Code ya kikundi chako.', 400);
+        }
+        user = candidates.find((u) => u.groupCode === code)
+            || candidates.find((u) => u.role === 'superadmin');
+        if (!user) {
             throw new AppError('Code ya kikundi si sahihi', 401);
         }
+    }
+
+    if (!(await user.correctPassword(password, user.password))) {
+        throw new AppError('Namba ya simu au Password si sahihi', 401);
+    }
+
+    if (code && user.role !== 'superadmin' && user.groupCode !== code) {
+        throw new AppError('Code ya kikundi si sahihi', 401);
     }
 
     const maintenance = await Settings.findOne({ key: 'maintenance' });

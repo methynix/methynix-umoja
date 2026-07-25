@@ -16,9 +16,6 @@ const sms = require('./smsTemplates');
  *  - secretary   -> may create members only, inside their group.
  */
 exports.registerMemberManually = async (creatorUser, memberData) => {
-    const existing = await userRepository.findByPhone(memberData.phone);
-    if (existing) throw new AppError('Namba hii tayari imesajiliwa', 400);
-
     let assignedRole;
     let groupId;
     let groupCode;
@@ -44,6 +41,14 @@ exports.registerMemberManually = async (creatorUser, memberData) => {
     } else {
         throw new AppError('Huna ruhusa ya kusajili watumiaji.', 403);
     }
+
+    // Phone is unique per group: block only if this number is already in THIS
+    // group. The same person may still be added to other groups.
+    const phoneQuery = assignedRole === 'superadmin'
+        ? { phone: memberData.phone, role: 'superadmin' }
+        : { phone: memberData.phone, groupCode };
+    const existing = await User.findOne(phoneQuery);
+    if (existing) throw new AppError('Namba hii tayari imesajiliwa kwenye kikundi hiki', 400);
 
     // Superadmin-to-superadmin is an internal, trusted bootstrap action — stays
     // immediately active with a chosen/default password, same as before.

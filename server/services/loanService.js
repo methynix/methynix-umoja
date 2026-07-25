@@ -28,6 +28,23 @@ exports.requestLoan = async (userId, payload) => {
     if (!guarantorExternalName || !guarantorExternalPhone) {
         throw new AppError('Mdhamini wa nje na namba yake ni lazima.', 400);
     }
+
+    // The internal guarantor must be a real, active member of THIS group —
+    // not just any name/number typed into the form.
+    const internalPhone = String(guarantorInternalPhone).trim();
+    const internalGuarantor = await User.findOne({
+        phone: internalPhone,
+        groupCode: user.groupCode,
+    });
+    if (!internalGuarantor) {
+        throw new AppError('Mdhamini wa ndani lazima awe mwanachama wa kikundi hiki. Namba uliyoweka haipo kwenye kikundi chako.', 400);
+    }
+    if (internalGuarantor._id.toString() === user._id.toString()) {
+        throw new AppError('Huwezi kujidhamini mwenyewe. Chagua mwanachama mwingine kama mdhamini wa ndani.', 400);
+    }
+    if (internalGuarantor.status && internalGuarantor.status !== 'active') {
+        throw new AppError('Mdhamini wa ndani uliyemchagua bado hajathibitisha akaunti yake.', 400);
+    }
     if (!applicantSignature) {
         throw new AppError('Tafadhali weka saini yako kwenye fomu.', 400);
     }

@@ -12,19 +12,23 @@ const {
 } = require('../validators/userValidator');
 const rateLimit = require('express-rate-limit');
 
+// Many members of a group often share one IP (office / home WiFi), so the
+// login/register cap is set for a whole group, not a single person.
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 10,
+    max: 60,
     standardHeaders: true,
     legacyHeaders: false,
+    skip: () => process.env.NODE_ENV === 'test',
     message: { status: 'error', message: 'Majaribio mengi sana. Jaribu tena baada ya dakika 15.' },
 });
 
 const otpLimiter = rateLimit({
     windowMs: 10 * 60 * 1000,
-    max: 5,
+    max: 20,
     standardHeaders: true,
     legacyHeaders: false,
+    skip: () => process.env.NODE_ENV === 'test',
     message: { status: 'error', message: 'Umevuka kikomo cha OTP. Jaribu tena baadaye.' },
 });
 

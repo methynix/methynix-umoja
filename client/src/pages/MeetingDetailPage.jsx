@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -29,12 +29,19 @@ const MeetingDetailPage = () => {
   const closeMeetingMutation = useCloseMeeting(id);
 
   const [attendanceMap, setAttendanceMap] = useState({});
+  const [syncedFrom, setSyncedFrom] = useState(null);
   const [closeConfirmOpen, setCloseConfirmOpen] = useState(false);
 
   const isLeader = ['admin', 'secretary', 'treasurer'].includes(user?.role);
   const isOpen = data?.meeting?.status === 'open';
 
-  useEffect(() => {
+  // Seed the editable attendance map whenever fresh meeting data arrives.
+  // Done during render (React's recommended alternative to setting state inside
+  // an effect) so there's no extra render pass or cascading-render warning.
+  // The `data !== syncedFrom` guard makes this run once per new data object and
+  // preserves in-progress local edits, which don't change the `data` reference.
+  if (data && data !== syncedFrom) {
+    setSyncedFrom(data);
     if (data?.attendance?.length > 0) {
       const map = {};
       data.attendance.forEach(a => { map[String(a.member._id)] = a.status; });
@@ -44,7 +51,7 @@ const MeetingDetailPage = () => {
       data.members.forEach(m => { map[String(m._id)] = 'present'; });
       setAttendanceMap(map);
     }
-  }, [data]);
+  }
 
   const toggleStatus = (memberId) => {
     if (!isLeader || !isOpen) return;

@@ -5,29 +5,30 @@ import toast from 'react-hot-toast';
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    // Derive the initial loading state instead of setting it inside the effect:
+    // if there's no token there's nothing to verify, so we don't start "loading".
+    const [loading, setLoading] = useState(() => Boolean(localStorage.getItem('token')));
 
     useEffect(() => {
-    const checkAuth = async () => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            setLoading(false);
-            return;
-        }
+    const token = localStorage.getItem('token');
+    if (!token) return; // loading already false — no synchronous setState needed
 
+    let cancelled = false;
+    const checkAuth = async () => {
         try {
             const response = await axiosInstance.get('/auth/me');
-            setUser(response.data.data.user);
+            if (!cancelled) setUser(response.data.data.user);
         } catch (error) {
             console.error("Auth check failed", error);
             localStorage.removeItem('token');
-            setUser(null);
+            if (!cancelled) setUser(null);
         } finally {
-            setLoading(false); 
+            if (!cancelled) setLoading(false);
         }
     };
 
     checkAuth();
+    return () => { cancelled = true; };
 }, []);
 
     const login = async (phone, password, groupCode) => {
